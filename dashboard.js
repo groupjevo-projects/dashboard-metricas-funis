@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Data State
-    let metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0 };
+    let metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
 
     function updateDOM(id, value, format = 'number') {
         const el = document.getElementById(id);
@@ -127,15 +127,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderMetrics() {
-        const { visitors, responses, vslViews, leads } = metrics;
+        const { visitors, responses, vslViews, leads, vslClicks } = metrics;
         
         // Cards
         updateDOM('metric-visits', visitors);
         updateDOM('metric-responses', responses);
         
-        const score = (responses/(visitors||1))*40 + (leads/(responses||1))*60;
-        updateDOM('metric-steps', isNaN(score) ? 0 : score);
-        updateDOM('metric-leads', leads);
+        // Card 3: Taxa de avanço para próxima etapa (responses / visitors)
+        const advanceRate = visitors > 0 ? (responses / visitors) * 100 : 0;
+        updateDOM('metric-steps', advanceRate, 'percent');
+        const pb = document.getElementById('metric-steps-bar');
+        if(pb) pb.style.width = advanceRate + '%';
+        
+        // Card 4: Taxa de pessoas que entraram e clicaram no VSL
+        const vslClickRate = visitors > 0 ? (vslClicks / visitors) * 100 : 0;
+        updateDOM('metric-leads', vslClickRate, 'percent');
 
         // Funnel
         const rRate = visitors > 0 ? (responses / visitors) * 100 : 0;
@@ -175,12 +181,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (eventType === 'gate_view') metrics.visitors++;
         else if (eventType === 'gate_unlock') metrics.responses++;
         else if (eventType === 'vsl_view') metrics.vslViews++;
+        else if (eventType === 'vsl_player_interaction') metrics.vslClicks++;
         else if (eventType === 'click_checkout') metrics.leads++;
         renderMetrics();
     }
 
     async function fetchInitialData() {
-        metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0 };
+        metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
         // Reset chart
         trafficChart.data.datasets.forEach(ds => ds.data = Array(24).fill(0));
         trafficChart.update('none');
