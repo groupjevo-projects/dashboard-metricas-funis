@@ -86,14 +86,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.scale.grid.color = '#361608';
     
-    const trafficChart = new Chart(ctx, {
+    let trafficChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Array.from({length: 24}, (_, i) => `${Math.floor(i/2)}:${i%2==0?'00':'30'}`),
+            labels: [],
             datasets: [
-                { label: 'Visitantes', data: Array(24).fill(0), borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', tension: 0.4, fill: true },
-                { label: 'Desbloqueios', data: Array(24).fill(0), borderColor: '#ec4899', backgroundColor: 'transparent', tension: 0.4 },
-                { label: 'Checkouts', data: Array(24).fill(0), borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.4 }
+                { label: 'Visitantes', data: [], borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', tension: 0.4, fill: true },
+                { label: 'Desbloqueios', data: [], borderColor: '#ec4899', backgroundColor: 'transparent', tension: 0.4 },
+                { label: 'Checkouts', data: [], borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.4 }
             ]
         },
         options: {
@@ -112,6 +112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Data State
     let metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
+    let currentTimeFilter = '24h';
 
     function updateDOM(id, value, format = 'number') {
         const el = document.getElementById(id);
@@ -133,13 +134,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateDOM('metric-visits', visitors);
         updateDOM('metric-responses', responses);
         
-        // Card 3: Taxa de avanço para próxima etapa (responses / visitors)
+        // Card 3: Taxa de avanço para próxima etapa
         const advanceRate = visitors > 0 ? (responses / visitors) * 100 : 0;
         updateDOM('metric-steps', advanceRate, 'percent');
         const pb = document.getElementById('metric-steps-bar');
         if(pb) pb.style.width = advanceRate + '%';
         
-        // Card 4: Taxa de pessoas que entraram e clicaram no VSL
+        // Card 4: Taxa de cliques VSL
         const vslClickRate = visitors > 0 ? (vslClicks / visitors) * 100 : 0;
         updateDOM('metric-leads', vslClickRate, 'percent');
 
@@ -167,42 +168,82 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateDOM('node-vsl-retention', rRate, 'percent');
         updateDOM('node-check-views', vslViews);
         updateDOM('node-check-retention', vslRate, 'percent');
-
-        // Update chart current hour with totals
-        const hour = new Date().getHours();
-        const datasets = trafficChart.data.datasets;
-        datasets[0].data[hour] = visitors;
-        datasets[1].data[hour] = responses;
-        datasets[2].data[hour] = leads;
-        trafficChart.update('none');
-    }
-
-    function processEvent(eventType) {
-        if (eventType === 'gate_view') metrics.visitors++;
-        else if (eventType === 'gate_unlock') metrics.responses++;
-        else if (eventType === 'vsl_view') metrics.vslViews++;
-        else if (eventType === 'vsl_player_interaction') metrics.vslClicks++;
-        else if (eventType === 'click_checkout') metrics.leads++;
-        renderMetrics();
     }
 
     async function fetchInitialData() {
         metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
-        // Reset chart
-        trafficChart.data.datasets.forEach(ds => ds.data = Array(24).fill(0));
+        
+        const now = new Date();
+        let since = new Date();
+        let labels = [];
+        let bins = 0;
+        
+        if (currentTimeFilter === '24h') {
+            since.setHours(now.getHours() - 24);
+            bins = 24;
+            for(let i=23; i>=0; i--) {
+                const d = new Date(now.getTime() - i*60*60*1000);
+                labels.push(d.getHours() + ':00');
+            }
+        } else if (currentTimeFilter === '7d') {
+            since.setDate(now.getDate() - 7);
+            bins = 7;
+            for(let i=6; i>=0; i--) {
+                const d = new Date(now.getTime() - i*24*60*60*1000);
+                labels.push(d.toLocaleDateString('es-ES', {weekday: 'short'}));
+            }
+        } else if (currentTimeFilter === '30d') {
+            since.setDate(now.getDate() - 30);
+            bins = 30;
+            for(let i=29; i>=0; i--) {
+                const d = new Date(now.getTime() - i*24*60*60*1000);
+                labels.push(d.getDate() + '/' + (d.getMonth()+1));
+            }
+        }
+        
+        trafficChart.data.labels = labels;
+        trafficChart.data.datasets.forEach(ds => ds.data = Array(bins).fill(0));
         trafficChart.update('none');
 
         const { data, error } = await supabase
             .from('funnel_events')
-            .select('event_type')
-            .eq('offer_id', currentOffer);
+            .select('event_type, created_at')
+            .eq('offer_id', currentOffer)
+            .gte('created_at', since.toISOString());
             
         if (error) {
-            console.error("Error fetching initial data", error);
+            console.error("Error fetching data", error);
             return;
         }
         
-        data.forEach(row => processEvent(row.event_type));
+        data.forEach(row => {
+            const eventType = row.event_type;
+            const eventTime = new Date(row.created_at);
+            
+            // Update Totals
+            if (eventType === 'gate_view') metrics.visitors++;
+            else if (eventType === 'gate_unlock') metrics.responses++;
+            else if (eventType === 'vsl_view') metrics.vslViews++;
+            else if (eventType === 'vsl_player_interaction') metrics.vslClicks++;
+            else if (eventType === 'click_checkout') metrics.leads++;
+            
+            // Bin into Chart
+            let binIndex = -1;
+            if (currentTimeFilter === '24h') {
+                binIndex = bins - 1 - Math.floor((now - eventTime) / (1000 * 60 * 60));
+            } else if (currentTimeFilter === '7d' || currentTimeFilter === '30d') {
+                binIndex = bins - 1 - Math.floor((now - eventTime) / (1000 * 60 * 60 * 24));
+            }
+            
+            if (binIndex >= 0 && binIndex < bins) {
+                if (eventType === 'gate_view') trafficChart.data.datasets[0].data[binIndex]++;
+                else if (eventType === 'gate_unlock') trafficChart.data.datasets[1].data[binIndex]++;
+                else if (eventType === 'click_checkout') trafficChart.data.datasets[2].data[binIndex]++;
+            }
+        });
+        
+        renderMetrics();
+        trafficChart.update('none');
     }
 
     // Subscribe to realtime inserts
@@ -210,26 +251,35 @@ document.addEventListener('DOMContentLoaded', async () => {
       .channel('realtime-events')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'funnel_events' }, payload => {
           if (payload.new.offer_id === currentOffer) {
-              processEvent(payload.new.event_type);
+              fetchInitialData(); // Re-fetch to re-bin
           }
       })
       .subscribe();
 
     offerButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const targetBtn = e.currentTarget;
-            currentOffer = targetBtn.dataset.offer;
-            
+            currentOffer = e.currentTarget.dataset.offer;
             offerButtons.forEach(b => {
                 b.classList.remove('bg-[#361608]', 'text-white', 'border-[#52220c]');
                 b.classList.add('text-gray-400', 'border-transparent');
                 b.querySelector('.text-xs').classList.replace('text-gray-400', 'text-gray-500');
             });
-            
-            targetBtn.classList.add('bg-[#361608]', 'text-white', 'border-[#52220c]');
-            targetBtn.classList.remove('text-gray-400', 'border-transparent');
-            targetBtn.querySelector('.text-xs').classList.replace('text-gray-500', 'text-gray-400');
-            
+            e.currentTarget.classList.add('bg-[#361608]', 'text-white', 'border-[#52220c]');
+            e.currentTarget.classList.remove('text-gray-400', 'border-transparent');
+            e.currentTarget.querySelector('.text-xs').classList.replace('text-gray-500', 'text-gray-400');
+            fetchInitialData();
+        });
+    });
+
+    document.querySelectorAll('.time-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            currentTimeFilter = e.currentTarget.dataset.time;
+            document.querySelectorAll('.time-btn').forEach(b => {
+                b.classList.remove('bg-[#361608]', 'text-white', 'border-[#52220c]');
+                b.classList.add('text-gray-400', 'border-transparent');
+            });
+            e.currentTarget.classList.add('bg-[#361608]', 'text-white', 'border-[#52220c]');
+            e.currentTarget.classList.remove('text-gray-400', 'border-transparent');
             fetchInitialData();
         });
     });
