@@ -16,17 +16,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function switchTab(tab) {
         if (tab === 'summary') {
-            tabSummary.classList.add('active', 'text-white', 'border-orange-500');
-            tabSummary.classList.remove('text-gray-400', 'border-transparent');
-            tabFlow.classList.remove('active', 'text-white', 'border-orange-500');
-            tabFlow.classList.add('text-gray-400', 'border-transparent');
+            tabSummary.classList.add('active', 'text-gray-900', 'border-gray-900');
+            tabSummary.classList.remove('text-gray-500', 'border-transparent');
+            tabFlow.classList.remove('active', 'text-gray-900', 'border-gray-900');
+            tabFlow.classList.add('text-gray-500', 'border-transparent');
             viewSummary.classList.remove('hidden');
             viewFlow.classList.add('hidden');
         } else {
-            tabFlow.classList.add('active', 'text-white', 'border-orange-500');
-            tabFlow.classList.remove('text-gray-400', 'border-transparent');
-            tabSummary.classList.remove('active', 'text-white', 'border-orange-500');
-            tabSummary.classList.add('text-gray-400', 'border-transparent');
+            tabFlow.classList.add('active', 'text-gray-900', 'border-gray-900');
+            tabFlow.classList.remove('text-gray-500', 'border-transparent');
+            tabSummary.classList.remove('active', 'text-gray-900', 'border-gray-900');
+            tabSummary.classList.add('text-gray-500', 'border-transparent');
             viewFlow.classList.remove('hidden');
             viewSummary.classList.add('hidden');
             setTimeout(drawConnections, 50);
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tabFlow.addEventListener('click', () => switchTab('flow'));
 
     function drawConnections() {
-        const svg = document.getElementById('connections-svg');
+        const svg = document.getElementById('flow-connections');
         if (!svg) return;
         svg.innerHTML = ''; 
         
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Data State
     let metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
-    let currentTimeFilter = '24h';
+    let currentTimeFilter = '7d';
 
     function updateDOM(id, value, format = 'number') {
         const el = document.getElementById(id);
