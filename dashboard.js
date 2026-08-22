@@ -5,36 +5,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // Tab switching
-    const tabSummary = document.getElementById('tab-summary');
-    const tabFlow = document.getElementById('tab-flow');
-    const viewSummary = document.getElementById('view-summary');
-    const viewFlow = document.getElementById('view-flow');
+    
+    
+    
+    
     
     // Sidebar switching
     const offerButtons = document.querySelectorAll('.offer-btn');
     let currentOffer = 'latam';
 
-    function switchTab(tab) {
-        if (tab === 'summary') {
-            tabSummary.classList.add('active', 'text-gray-900', 'border-gray-900');
-            tabSummary.classList.remove('text-gray-500', 'border-transparent');
-            tabFlow.classList.remove('active', 'text-gray-900', 'border-gray-900');
-            tabFlow.classList.add('text-gray-500', 'border-transparent');
-            viewSummary.classList.remove('hidden');
-            viewFlow.classList.add('hidden');
-        } else {
-            tabFlow.classList.add('active', 'text-gray-900', 'border-gray-900');
-            tabFlow.classList.remove('text-gray-500', 'border-transparent');
-            tabSummary.classList.remove('active', 'text-gray-900', 'border-gray-900');
-            tabSummary.classList.add('text-gray-500', 'border-transparent');
-            viewFlow.classList.remove('hidden');
-            viewSummary.classList.add('hidden');
-            setTimeout(drawConnections, 50);
         }
-    }
 
-    tabSummary.addEventListener('click', () => switchTab('summary'));
-    tabFlow.addEventListener('click', () => switchTab('flow'));
+    
+    
 
     function drawConnections() {
         const svg = document.getElementById('flow-connections');
@@ -112,7 +95,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Data State
     let metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
-    let currentTimeFilter = '7d';
+    let currentTimeFilter = '24h';
 
     function updateDOM(id, value, format = 'number') {
         const el = document.getElementById(id);
@@ -162,12 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateDOM('interaction-rate', rRate, 'percent');
         updateDOM('bounce-rate', 100 - rRate, 'percent');
 
-        // Flow Nodes
-        updateDOM('node-gate-views', visitors);
-        updateDOM('node-vsl-views', responses);
-        updateDOM('node-vsl-retention', rRate, 'percent');
-        updateDOM('node-check-views', vslViews);
-        updateDOM('node-check-retention', vslRate, 'percent');
+
     }
 
     async function fetchInitialData() {
@@ -190,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             bins = 7;
             for(let i=6; i>=0; i--) {
                 const d = new Date(now.getTime() - i*24*60*60*1000);
-                labels.push(d.toLocaleDateString('es-ES', {weekday: 'short'}));
+                labels.push(d.toLocaleDateString('pt-BR', {weekday: 'short'}));
             }
         } else if (currentTimeFilter === '30d') {
             since.setDate(now.getDate() - 30);
@@ -285,5 +263,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     fetchInitialData();
-    switchTab('summary');
+    
 });

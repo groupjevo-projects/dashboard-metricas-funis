@@ -26,7 +26,7 @@
         <div class="h-16 flex items-center px-6 border-b border-gray-100">
             <div class="flex items-center space-x-2">
                 <!-- JEVO angular C logo -->
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC0AAAA8CAYAAADykDOkAAAB4UlEQVR4AeyWvc6CMBSGiz+TiYtxddbBRDeNXpI35uQFuLoRdq6AENjYCMP35SUhKQVKC4cfsSSvpeecto8vDXT294XXjH3hZaD7emjGaeO0xAGzPSTmkKam5XSSJGysmpbTpJuQeDLjNLGhldMZpyutIU78ntPb7ZY11efzYaJUH8honL7f76rMbBTQ5/NZGRiFo4BerVZgUVb/0AKazrbIhg4Kfb1eMw6tlhw6DENWptfrxXiBcj6fo9EWOXQZgW3bhXCTbZFN0gt0HMfZeml7u93StulP59D4gPBwi8WCWZbFh7TvO4V2XZdtNpucLpeLNqQ4oFPo/X7PDodDTiJAk36n0DIg3/cZryiKZOW53CDQOGQdj0fGa71e58Bknd6hn89ngScIgkJMFiCHhouyBR+PRy6ND4xl6b1NyKFBVAVeFse+xhgddQINAACKQpwXXol8X/W+M2gVALzDVerEmsGgcagSYVT7g0B7nqfKV1rXCrqJWxizXC5LYVSDraCxCCBOpxNupXIcJz1nS4sUk62hsc77/U6B8AeqtNvtUEoiEmgSEo1JDLSGWa1KNZ1utRbZYANNZmXNRMbpGoPI0sZpMitrJpqW0ziJjVXTcrpmWw2aNk73Zb9xui+n/wEAAP//XWXfLAAAAAZJREFUAwD5lKzUNBrHRwAAAABJRU5ErkJggg==" alt="Logo" class="w-5 h-5 object-contain">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC0AAAA8CAYAAADykDOkAAAB4UlEQVR4AeyWvc6CMBSGiz+TiYtxddbBRDeNXpI35uQFuLoRdq6AENjYCMP35SUhKQVKC4cfsSSvpeecto8vDXT294XXjH3hZaD7emjGaeO0xAGzPSTmkKam5XSSJGysmpbTpJuQeDLjNLGhldMZpyutIU78ntPb7ZY11efzYaJUH8honL7f76rMbBTQ5/NZGRiFo4BerVZgUVb/0AKazrbIhg4Kfb1eMw6tlhw6DENWptfrxXiBcj6fo9EWOXQZgW3bhXCTbZFN0gt0HMfZeml7u93StulP59D4gPBwi8WCWZbFh7TvO4V2XZdtNpucLpeLNqQ4oFPo/X7PDodDTiJAk36n0DIg3/cZryiKZOW53CDQOGQdj0fGa71e58Bknd6hn89ngScIgkJMFiCHhouyBR+PRy6ND4xl6b1NyKFBVAVeFse+xhgddQINAACKQpwXXol8X/W+M2gVALzDVerEmsGgcagSYVT7g0B7nqfKV1rXCrqJWxizXC5LYVSDraCxCCBOpxNupXIcJz1nS4sUk62hsc77/U6B8AeqtNvtUEoiEmgSEo1JDLSGWa1KNZ1utRbZYANNZmXNRMbpGoPI0sZpMitrJpqW0ziJjVXTcrpmWw2aNk73Zb9xui+n/wEAAP//XWXfLAAAAAZJREFUAwD5lKzUNBrHRwAAAABJRU5ErkJggg==" alt="Logo" class="w-[1.6rem] h-[1.6rem] object-contain">
                 <span class="font-extrabold text-[17px] tracking-tight text-gray-900">JEVO <span class="font-normal text-gray-500">group</span></span>
             </div>
         </div>
@@ -35,7 +35,7 @@
             <h2 class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Ofertas Ativas</h2>
             <nav class="space-y-1">
                 <button class="offer-btn w-full flex items-center space-x-3 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium transition-colors" data-offer="latam">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <span class="text-sm leading-none mr-2">🇪🇸</span>
                     <div class="text-left">
                         <div class="text-sm">Mapa Prazer Latam</div>
                     </div>
@@ -50,13 +50,13 @@
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shrink-0">
             <div class="flex space-x-6 h-full items-end pb-0">
                 <button id="tab-summary" class="tab-btn active pb-4 border-b-2 border-gray-900 text-sm font-semibold text-gray-900" data-target="summary">Visão Geral</button>
-                <button id="tab-flow" class="tab-btn pb-4 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700" data-target="flow">Mapeamento de Fluxo</button>
+                
             </div>
 
             <!-- Time Filter -->
             <div class="flex bg-gray-100 p-1 rounded-md border border-gray-200" id="time-filters">
-                <button data-time="24h" class="time-btn px-3 py-1 text-xs rounded text-gray-500 hover:text-gray-900 transition-colors">24h</button>
-                <button data-time="7d" class="time-btn px-3 py-1 text-xs rounded text-gray-900 bg-white shadow-sm font-medium">7d</button>
+                <button data-time="24h" class="time-btn px-3 py-1 text-xs rounded text-gray-900 bg-white shadow-sm font-medium">24h</button>
+                <button data-time="7d" class="time-btn px-3 py-1 text-xs rounded text-gray-500 hover:text-gray-900 transition-colors">7d</button>
                 <button data-time="30d" class="time-btn px-3 py-1 text-xs rounded text-gray-500 hover:text-gray-900 transition-colors">30d</button>
             </div>
         </header>
@@ -140,21 +140,7 @@
                 </div>
             </div>
 
-            <!-- View: Flow -->
-            <div id="view-flow" class="hidden h-full max-w-7xl mx-auto">
-                <div class="bg-white rounded-xl border border-gray-200 p-8 shadow-sm h-full flex flex-col relative overflow-hidden">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-8">Mapeamento de Fluxo do Usuário</h3>
-                    <div class="flex-1 relative flex items-center justify-between px-10">
-                        <svg id="flow-connections" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;"></svg>
-
-                        <!-- Node 1 -->
-                        <div class="relative z-10 w-48">
-                            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm text-center" data-id="start-out">
-                                <div class="text-xs font-semibold text-gray-500 uppercase mb-1">Página Inicial</div>
-                                <div class="text-2xl font-bold text-gray-900" id="node-gate-views">0</div>
-                                <div class="text-[10px] text-gray-400 mt-1">Visitantes Únicos</div>
-                            </div>
-                        </div>
+            </div>
 
                         <!-- Dropoff 1 -->
                         <div class="relative z-10 flex flex-col items-center">
