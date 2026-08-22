@@ -14,56 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const offerButtons = document.querySelectorAll('.offer-btn');
     let currentOffer = 'latam';
 
-        }
-
-    
-    
-
-    function drawConnections() {
-        const svg = document.getElementById('flow-connections');
-        if (!svg) return;
-        svg.innerHTML = ''; 
-        
-        const connections = [
-            { from: 'start-out', to: 'gate-in' },
-            { from: 'gate-out', to: 'vsl-in' },
-            { from: 'vsl-out', to: 'checkout-in' }
-        ];
-
-        const svgRect = svg.getBoundingClientRect();
-
-        connections.forEach(conn => {
-            const elFrom = document.querySelector(`[data-id="${conn.from}"]`);
-            const elTo = document.querySelector(`[data-id="${conn.to}"]`);
-            
-            if (elFrom && elTo) {
-                const rectFrom = elFrom.getBoundingClientRect();
-                const rectTo = elTo.getBoundingClientRect();
-
-                const startX = rectFrom.left + rectFrom.width / 2 - svgRect.left;
-                const startY = rectFrom.top + rectFrom.height / 2 - svgRect.top;
-                
-                const endX = rectTo.left + rectTo.width / 2 - svgRect.left;
-                const endY = rectTo.top + rectTo.height / 2 - svgRect.top;
-
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                const controlPointOffset = Math.abs(endX - startX) / 2;
-                const d = `M ${startX} ${startY} C ${startX + controlPointOffset} ${startY}, ${endX - controlPointOffset} ${endY}, ${endX} ${endY}`;
-                
-                path.setAttribute('d', d);
-                path.setAttribute('class', 'connection-line');
-                path.style.animation = 'dash 10s linear infinite';
-                path.style.strokeDasharray = '5, 5';
-                
-                svg.appendChild(path);
-            }
-        });
-    }
-
-    window.addEventListener('resize', () => {
-        if (!viewFlow.classList.contains('hidden')) drawConnections();
-    });
-
     // Chart Setup
     const ctx = document.getElementById('trafficChart').getContext('2d');
     Chart.defaults.color = '#6b7280';
