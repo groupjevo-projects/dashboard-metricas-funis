@@ -240,11 +240,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             offerButtons.forEach(b => {
                 b.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
                 b.classList.add('text-gray-500', 'hover:text-gray-900');
-                b.querySelector('.text-xs').classList.replace('text-gray-400', 'text-gray-500');
+                
             });
             e.currentTarget.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
             e.currentTarget.classList.remove('text-gray-500', 'hover:text-gray-900');
-            e.currentTarget.querySelector('.text-xs').classList.replace('text-gray-500', 'text-gray-400');
+            
             fetchInitialData();
         });
     });
