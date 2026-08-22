@@ -83,8 +83,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Chart Setup
     const ctx = document.getElementById('trafficChart').getContext('2d');
-    Chart.defaults.color = '#94a3b8';
-    Chart.defaults.scale.grid.color = '#361608';
+    Chart.defaults.color = '#6b7280';
+    Chart.defaults.scale.grid.color = '#f3f4f6';
     
     let trafficChart = new Chart(ctx, {
         type: 'line',
@@ -101,10 +101,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true, boxWidth: 6 } },
-                tooltip: { backgroundColor: '#1c0c05', titleColor: '#f1f5f9', bodyColor: '#cbd5e1', borderColor: '#52220c', borderWidth: 1 }
+                tooltip: { backgroundColor: '#ffffff', titleColor: '#111827', bodyColor: '#4b5563', borderColor: '#e5e7eb', borderWidth: 1 }
             },
             scales: {
-                y: { beginAtZero: true, grid: { color: '#361608' } },
+                y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
                 x: { grid: { color: 'transparent' } }
             }
         }
@@ -260,12 +260,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.addEventListener('click', (e) => {
             currentOffer = e.currentTarget.dataset.offer;
             offerButtons.forEach(b => {
-                b.classList.remove('bg-[#361608]', 'text-white', 'border-[#52220c]');
-                b.classList.add('text-gray-400', 'border-transparent');
+                b.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+                b.classList.add('text-gray-500', 'hover:text-gray-900');
                 b.querySelector('.text-xs').classList.replace('text-gray-400', 'text-gray-500');
             });
-            e.currentTarget.classList.add('bg-[#361608]', 'text-white', 'border-[#52220c]');
-            e.currentTarget.classList.remove('text-gray-400', 'border-transparent');
+            e.currentTarget.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+            e.currentTarget.classList.remove('text-gray-500', 'hover:text-gray-900');
             e.currentTarget.querySelector('.text-xs').classList.replace('text-gray-500', 'text-gray-400');
             fetchInitialData();
         });
@@ -275,11 +275,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.addEventListener('click', (e) => {
             currentTimeFilter = e.currentTarget.dataset.time;
             document.querySelectorAll('.time-btn').forEach(b => {
-                b.classList.remove('bg-[#361608]', 'text-white', 'border-[#52220c]');
-                b.classList.add('text-gray-400', 'border-transparent');
+                b.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+                b.classList.add('text-gray-500', 'hover:text-gray-900');
             });
-            e.currentTarget.classList.add('bg-[#361608]', 'text-white', 'border-[#52220c]');
-            e.currentTarget.classList.remove('text-gray-400', 'border-transparent');
+            e.currentTarget.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+            e.currentTarget.classList.remove('text-gray-500', 'hover:text-gray-900');
             fetchInitialData();
         });
     });
