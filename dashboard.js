@@ -47,6 +47,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     let metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
     let currentTimeFilter = '24h';
 
+    // Supabase caps each request at 1000 rows; paginate to get the full dataset
+    async function fetchAllEvents(sinceIso) {
+        const pageSize = 1000;
+        let allRows = [];
+        let from = 0;
+        while (true) {
+            const { data, error } = await supabase
+                .from('funnel_events')
+                .select('event_type, created_at')
+                .eq('offer_id', currentOffer)
+                .gte('created_at', sinceIso)
+                .order('created_at', { ascending: true })
+                .range(from, from + pageSize - 1);
+
+            if (error) {
+                console.error("Error fetching data", error);
+                break;
+            }
+            allRows = allRows.concat(data);
+            if (data.length < pageSize) break;
+            from += pageSize;
+        }
+        return allRows;
+    }
+
     function updateDOM(id, value, format = 'number') {
         const el = document.getElementById(id);
         if (!el) return;
@@ -133,17 +158,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         trafficChart.data.datasets.forEach(ds => ds.data = Array(bins).fill(0));
         trafficChart.update('none');
 
-        const { data, error } = await supabase
-            .from('funnel_events')
-            .select('event_type, created_at')
-            .eq('offer_id', currentOffer)
-            .gte('created_at', since.toISOString());
-            
-        if (error) {
-            console.error("Error fetching data", error);
-            return;
-        }
-        
+        const data = await fetchAllEvents(since.toISOString());
+
         data.forEach(row => {
             const eventType = row.event_type;
             const eventTime = new Date(row.created_at);
