@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Data State
     let metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
     let currentTimeFilter = '24h';
+    let fetchToken = 0; // guards against a slower stale fetch overwriting a newer one
 
     // Supabase caps each request at 1000 rows; paginate to get the full dataset
     async function fetchAllEvents(sinceIso) {
@@ -124,28 +125,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function fetchInitialData() {
-        metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
-        
+        const myToken = ++fetchToken;
+        const timeFilter = currentTimeFilter; // snapshot: this fetch always renders for the filter it started with
+
+        const freshMetrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
+
         const now = new Date();
         let since = new Date();
         let labels = [];
         let bins = 0;
-        
-        if (currentTimeFilter === '24h') {
+
+        if (timeFilter === '24h') {
             since.setHours(now.getHours() - 24);
             bins = 24;
             for(let i=23; i>=0; i--) {
                 const d = new Date(now.getTime() - i*60*60*1000);
                 labels.push(d.getHours() + ':00');
             }
-        } else if (currentTimeFilter === '7d') {
+        } else if (timeFilter === '7d') {
             since.setDate(now.getDate() - 7);
             bins = 7;
             for(let i=6; i>=0; i--) {
                 const d = new Date(now.getTime() - i*24*60*60*1000);
                 labels.push(d.toLocaleDateString('pt-BR', {weekday: 'short'}));
             }
-        } else if (currentTimeFilter === '30d') {
+        } else if (timeFilter === '30d') {
             since.setDate(now.getDate() - 30);
             bins = 30;
             for(let i=29; i>=0; i--) {
@@ -153,49 +157,60 @@ document.addEventListener('DOMContentLoaded', async () => {
                 labels.push(d.getDate() + '/' + (d.getMonth()+1));
             }
         }
-        
-        trafficChart.data.labels = labels;
-        trafficChart.data.datasets.forEach(ds => ds.data = Array(bins).fill(0));
-        trafficChart.update('none');
 
         const data = await fetchAllEvents(since.toISOString());
+
+        // A newer fetch (tab switch, offer switch, or realtime refresh) started after
+        // this one — discard these results instead of overwriting the current view.
+        if (myToken !== fetchToken) return;
+
+        const bins_data = [Array(bins).fill(0), Array(bins).fill(0), Array(bins).fill(0)];
 
         data.forEach(row => {
             const eventType = row.event_type;
             const eventTime = new Date(row.created_at);
-            
+
             // Update Totals
-            if (eventType === 'gate_view') metrics.visitors++;
-            else if (eventType === 'gate_unlock') metrics.responses++;
-            else if (eventType === 'vsl_view') metrics.vslViews++;
-            else if (eventType === 'vsl_player_interaction') metrics.vslClicks++;
-            else if (eventType === 'click_checkout') metrics.leads++;
-            
+            if (eventType === 'gate_view') freshMetrics.visitors++;
+            else if (eventType === 'gate_unlock') freshMetrics.responses++;
+            else if (eventType === 'vsl_view') freshMetrics.vslViews++;
+            else if (eventType === 'vsl_player_interaction') freshMetrics.vslClicks++;
+            else if (eventType === 'click_checkout') freshMetrics.leads++;
+
             // Bin into Chart
             let binIndex = -1;
-            if (currentTimeFilter === '24h') {
+            if (timeFilter === '24h') {
                 binIndex = bins - 1 - Math.floor((now - eventTime) / (1000 * 60 * 60));
-            } else if (currentTimeFilter === '7d' || currentTimeFilter === '30d') {
+            } else if (timeFilter === '7d' || timeFilter === '30d') {
                 binIndex = bins - 1 - Math.floor((now - eventTime) / (1000 * 60 * 60 * 24));
             }
-            
+
             if (binIndex >= 0 && binIndex < bins) {
-                if (eventType === 'gate_view') trafficChart.data.datasets[0].data[binIndex]++;
-                else if (eventType === 'gate_unlock') trafficChart.data.datasets[1].data[binIndex]++;
-                else if (eventType === 'click_checkout') trafficChart.data.datasets[2].data[binIndex]++;
+                if (eventType === 'gate_view') bins_data[0][binIndex]++;
+                else if (eventType === 'gate_unlock') bins_data[1][binIndex]++;
+                else if (eventType === 'click_checkout') bins_data[2][binIndex]++;
             }
         });
-        
+
+        metrics = freshMetrics;
+        trafficChart.data.labels = labels;
+        trafficChart.data.datasets[0].data = bins_data[0];
+        trafficChart.data.datasets[1].data = bins_data[1];
+        trafficChart.data.datasets[2].data = bins_data[2];
+
         renderMetrics();
         trafficChart.update('none');
     }
 
-    // Subscribe to realtime inserts
+    // Subscribe to realtime inserts. Traffic can insert several rows per second, so
+    // coalesce bursts instead of re-running the full paginated fetch on every row.
+    let realtimeDebounce = null;
     supabase
       .channel('realtime-events')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'funnel_events' }, payload => {
           if (payload.new.offer_id === currentOffer) {
-              fetchInitialData(); // Re-fetch to re-bin
+              clearTimeout(realtimeDebounce);
+              realtimeDebounce = setTimeout(fetchInitialData, 2000);
           }
       })
       .subscribe();
