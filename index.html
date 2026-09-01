@@ -47,8 +47,8 @@
                     <span class="text-base leading-none">🇧🇷</span>
                     <div class="text-left flex-1">
                         <div class="text-xs font-bold text-gray-900">Chave Deusa Brasil</div>
-                        <div class="text-[10px] text-amber-600 font-medium flex items-center mt-0.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block mr-1"></span> Em Onboarding (Preview)
+                        <div class="text-[10px] text-emerald-600 font-medium flex items-center mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1"></span> Ativo · Vercel
                         </div>
                     </div>
                 </button>
@@ -73,11 +73,19 @@
             <div class="flex items-center space-x-4">
                 <h1 id="current-funnel-title" class="text-base font-bold text-gray-900">Mapa do Prazer Masculino — LATAM</h1>
                 <span id="current-funnel-badge" class="text-[11px] bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full">GEO LATAM</span>
+                <span id="loading-indicator" class="hidden text-xs text-blue-600 font-medium items-center">
+                    <svg class="animate-spin -ml-1 mr-2 h-3.5 w-3.5 text-blue-600 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Atualizando dados...
+                </span>
             </div>
 
             <!-- Time Filter -->
             <div class="flex bg-gray-100 p-1 rounded-lg border border-gray-200" id="time-filters">
-                <button data-time="24h" class="time-btn px-3 py-1 text-xs rounded-md text-gray-900 bg-white shadow-sm font-semibold transition-all">Últimas 24h</button>
+                <button data-time="today" class="time-btn px-3 py-1 text-xs rounded-md text-gray-900 bg-white shadow-sm font-semibold transition-all">Hoje</button>
+                <button data-time="24h" class="time-btn px-3 py-1 text-xs rounded-md text-gray-500 hover:text-gray-900 font-medium transition-all">24 horas</button>
                 <button data-time="7d" class="time-btn px-3 py-1 text-xs rounded-md text-gray-500 hover:text-gray-900 font-medium transition-all">7 dias</button>
                 <button data-time="30d" class="time-btn px-3 py-1 text-xs rounded-md text-gray-500 hover:text-gray-900 font-medium transition-all">30 dias</button>
             </div>
@@ -91,26 +99,26 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Visitas Únicas</h3>
-                            <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">Sessões</span>
+                            <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Visitantes Únicos</h3>
+                            <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">Sessões Reais</span>
                         </div>
                         <div class="text-3xl font-extrabold text-gray-900" id="metric-visits">0</div>
-                        <p class="text-[11px] text-gray-400 mt-2">Total de acessos à landing page</p>
+                        <p class="text-[11px] text-gray-400 mt-2" id="metric-visits-sub">Acessos únicos ao Gate</p>
                     </div>
                     
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Desbloqueios de Gate</h3>
-                            <span class="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded font-medium">Interação</span>
+                            <span class="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded font-medium">Arrastaram</span>
                         </div>
                         <div class="text-3xl font-extrabold text-gray-900" id="metric-responses">0</div>
-                        <p class="text-[11px] text-gray-400 mt-2">Usuários que liberaram o gate</p>
+                        <p class="text-[11px] text-gray-400 mt-2">Usuários que liberaram a aula</p>
                     </div>
                     
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Taxa de Avanço</h3>
-                            <span class="text-[10px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded font-medium">Gate ➔ VSL</span>
+                            <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Taxa de Avanço (Gate)</h3>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded font-medium">Conversão</span>
                         </div>
                         <div class="text-3xl font-extrabold text-gray-900 mb-2" id="metric-steps">0%</div>
                         <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
@@ -121,10 +129,10 @@
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Intenção de Checkout</h3>
-                            <span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded font-medium">Cliques CTA</span>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded font-medium">Cliques Hotmart</span>
                         </div>
-                        <div class="text-3xl font-extrabold text-gray-900" id="metric-leads">0%</div>
-                        <p class="text-[11px] text-gray-400 mt-2">Taxa de cliques em direção ao Hotmart</p>
+                        <div class="text-3xl font-extrabold text-gray-900" id="metric-leads">0</div>
+                        <p class="text-[11px] text-gray-400 mt-2" id="metric-leads-sub">0% de todos os visitantes</p>
                     </div>
                 </div>
 
@@ -132,7 +140,10 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Funnel Column -->
                     <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                        <h3 class="text-sm font-bold text-gray-900 mb-6">Jornada de Conversão</h3>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-bold text-gray-900">Jornada de Conversão</h3>
+                            <span class="text-[11px] text-gray-400 font-medium" id="funnel-period-label">Hoje</span>
+                        </div>
                         <div class="space-y-6 relative">
                             <div class="flex items-center justify-between">
                                 <div class="w-24 text-xs font-semibold text-gray-600">1. Visitantes</div>
@@ -164,10 +175,10 @@
                     <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex flex-col">
                         <div class="flex justify-between items-start mb-6">
                             <div>
-                                <h3 class="text-sm font-bold text-gray-900">Telemetria Temporal (Acessos vs Interações)</h3>
-                                <p class="text-xs text-gray-500 mt-1">Taxa de engajamento no Gate: <span id="interaction-rate" class="text-blue-600 font-bold">0%</span></p>
+                                <h3 class="text-sm font-bold text-gray-900">Telemetria Temporal (Acessos vs Desbloqueios vs Checkouts)</h3>
+                                <p class="text-xs text-gray-500 mt-1">Taxa de avanço no Gate: <span id="interaction-rate" class="text-blue-600 font-bold">0%</span></p>
                             </div>
-                            <div class="text-xs text-gray-500 font-medium">Taxa de evasão: <span id="bounce-rate" class="text-rose-500 font-bold">0%</span></div>
+                            <div class="text-xs text-gray-500 font-medium">Taxa de desistência: <span id="bounce-rate" class="text-rose-500 font-bold">0%</span></div>
                         </div>
                         <div class="flex-1 min-h-[260px] relative">
                             <canvas id="trafficChart"></canvas>

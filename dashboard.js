@@ -14,13 +14,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         'chave-deusa-prazer-br': {
             title: 'Chave Deusa do Prazer — Brasil',
             badge: 'GEO Brasil (pt-BR)',
-            badgeClass: 'bg-amber-100 text-amber-800',
+            badgeClass: 'bg-emerald-100 text-emerald-800',
             aliases: ['chave-deusa-prazer-br', 'chave-deusa-br']
         }
     };
 
     let currentOffer = 'latam';
-    let currentTimeFilter = '24h';
+    let currentTimeFilter = 'today';
     let fetchToken = 0;
 
     // Chart Setup
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             labels: [],
             datasets: [
                 {
-                    label: 'Visitantes Únicos',
+                    label: 'Visitantes Únicos (Gate)',
                     data: [],
                     borderColor: '#2563eb',
                     backgroundColor: 'rgba(37, 99, 235, 0.08)',
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     pointHoverRadius: 6
                 },
                 {
-                    label: 'Desbloqueios (Interação)',
+                    label: 'Desbloqueios (Passaram)',
                     data: [],
                     borderColor: '#9333ea',
                     backgroundColor: 'transparent',
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     pointHoverRadius: 6
                 },
                 {
-                    label: 'Intenção de Compra (Checkout)',
+                    label: 'Cliques Checkout (Hotmart)',
                     data: [],
                     borderColor: '#059669',
                     backgroundColor: 'transparent',
@@ -96,6 +96,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    function showLoading(show) {
+        const el = document.getElementById('loading-indicator');
+        if (el) {
+            if (show) el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        }
+    }
+
     // Fetch all events with pagination from Supabase
     async function fetchAllEvents(sinceIso) {
         const pageSize = 1000;
@@ -104,13 +112,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const aliases = funnelInfo[currentOffer]?.aliases || [currentOffer];
 
         while (true) {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('funnel_events')
                 .select('event_type, created_at, offer_id, session_id')
                 .in('offer_id', aliases)
-                .gte('created_at', sinceIso)
                 .order('created_at', { ascending: true })
                 .range(from, from + pageSize - 1);
+
+            if (sinceIso) {
+                query = query.gte('created_at', sinceIso);
+            }
+
+            const { data, error } = await query;
 
             if (error) {
                 console.warn("Supabase fetch notice:", error.message);
@@ -146,21 +159,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function fetchInitialData() {
         const myToken = ++fetchToken;
         const timeFilter = currentTimeFilter;
+        showLoading(true);
 
         const now = new Date();
-        let since = new Date();
+        let since = null;
         let labels = [];
         let bins = 0;
 
-        if (timeFilter === '24h') {
-            since.setHours(now.getHours() - 24);
+        const periodLabels = {
+            'today': 'Hoje',
+            '24h': 'Últimas 24 Horas',
+            '7d': 'Últimos 7 Dias',
+            '30d': 'Últimos 30 Dias'
+        };
+        const periodEl = document.getElementById('funnel-period-label');
+        if (periodEl) periodEl.innerText = periodLabels[timeFilter] || 'Período';
+
+        if (timeFilter === 'today') {
+            // Start of today in local time / UTC
+            since = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+            const currentHour = now.getHours();
+            bins = currentHour + 1;
+            for (let i = 0; i <= currentHour; i++) {
+                labels.push(i.toString().padStart(2, '0') + ':00');
+            }
+        } else if (timeFilter === '24h') {
+            since = new Date(now.getTime() - 24 * 60 * 60 * 1000);
             bins = 24;
             for (let i = 23; i >= 0; i--) {
                 const d = new Date(now.getTime() - i * 60 * 60 * 1000);
                 labels.push(d.getHours().toString().padStart(2, '0') + ':00');
             }
         } else if (timeFilter === '7d') {
-            since.setDate(now.getDate() - 6);
+            since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             since.setHours(0, 0, 0, 0);
             bins = 7;
             for (let i = 6; i >= 0; i--) {
@@ -170,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 labels.push(`${day}/${month}`);
             }
         } else if (timeFilter === '30d') {
-            since.setDate(now.getDate() - 29);
+            since = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
             since.setHours(0, 0, 0, 0);
             bins = 30;
             for (let i = 29; i >= 0; i--) {
@@ -181,42 +212,44 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        const data = await fetchAllEvents(since.toISOString());
+        const data = await fetchAllEvents(since ? since.toISOString() : null);
+        showLoading(false);
         if (myToken !== fetchToken) return;
 
-        // Session-based unique tracking
-        const uniqueVisitors = new Set();
-        const uniqueUnlocks = new Set();
-        const uniqueVSL = new Set();
+        // Session sets for pure funnel step calculation
+        const uniqueGateViews = new Set();
+        const uniqueGateUnlocks = new Set();
+        const uniqueVSLViews = new Set();
         const uniqueCheckouts = new Set();
 
         const bins_visitors = Array(bins).fill(0);
         const bins_unlocks = Array(bins).fill(0);
         const bins_checkouts = Array(bins).fill(0);
-        const bins_seen_sessions = Array.from({ length: bins }, () => new Set());
+        const bins_seen_visitors = Array.from({ length: bins }, () => new Set());
+        const bins_seen_unlocks = Array.from({ length: bins }, () => new Set());
+        const bins_seen_checkouts = Array.from({ length: bins }, () => new Set());
 
         data.forEach(row => {
             const eventType = row.event_type;
             const eventTime = new Date(row.created_at);
-            const sessId = row.session_id || 'anon_' + Math.random();
+            const sessId = row.session_id || ('row_' + row.id);
 
-            // Aggregate Funnel Metrics
+            // True stage classification
             if (eventType === 'gate_view' || eventType === 'landing_view') {
-                uniqueVisitors.add(sessId);
+                uniqueGateViews.add(sessId);
             } else if (eventType === 'gate_unlock' || eventType === 'step_advance') {
-                uniqueVisitors.add(sessId);
-                uniqueUnlocks.add(sessId);
+                uniqueGateUnlocks.add(sessId);
             } else if (eventType === 'vsl_view' || eventType === 'vsl_player_loaded' || eventType === 'vsl_player_interaction') {
-                uniqueVisitors.add(sessId);
-                uniqueVSL.add(sessId);
+                uniqueVSLViews.add(sessId);
             } else if (eventType === 'click_checkout') {
-                uniqueVisitors.add(sessId);
                 uniqueCheckouts.add(sessId);
             }
 
             // Calculate Bin Index
             let binIndex = -1;
-            if (timeFilter === '24h') {
+            if (timeFilter === 'today') {
+                binIndex = eventTime.getHours();
+            } else if (timeFilter === '24h') {
                 const diffHours = Math.floor((now - eventTime) / (1000 * 60 * 60));
                 binIndex = bins - 1 - diffHours;
             } else {
@@ -226,27 +259,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (binIndex >= 0 && binIndex < bins) {
                 if (eventType === 'gate_view' || eventType === 'landing_view') {
-                    if (!bins_seen_sessions[binIndex].has(sessId)) {
-                        bins_seen_sessions[binIndex].add(sessId);
+                    if (!bins_seen_visitors[binIndex].has(sessId)) {
+                        bins_seen_visitors[binIndex].add(sessId);
                         bins_visitors[binIndex]++;
                     }
                 } else if (eventType === 'gate_unlock' || eventType === 'step_advance') {
-                    bins_unlocks[binIndex]++;
+                    if (!bins_seen_unlocks[binIndex].has(sessId)) {
+                        bins_seen_unlocks[binIndex].add(sessId);
+                        bins_unlocks[binIndex]++;
+                    }
                 } else if (eventType === 'click_checkout') {
-                    bins_checkouts[binIndex]++;
+                    if (!bins_seen_checkouts[binIndex].has(sessId)) {
+                        bins_seen_checkouts[binIndex].add(sessId);
+                        bins_checkouts[binIndex]++;
+                    }
                 }
             }
         });
 
-        const totalVisitors = Math.max(uniqueVisitors.size, data.length > 0 ? 1 : 0);
-        const totalUnlocks = uniqueUnlocks.size;
-        const totalVSL = uniqueVSL.size;
+        const totalVisitors = uniqueGateViews.size;
+        const totalUnlocks = uniqueGateUnlocks.size;
+        const totalVSL = Math.max(uniqueVSLViews.size, totalUnlocks > 0 ? totalUnlocks : 0);
         const totalCheckouts = uniqueCheckouts.size;
 
-        // Card 1: Visitas Únicas
+        // Card 1: Visitantes Únicos no Gate
         updateDOM('metric-visits', totalVisitors);
+        const visitsSub = document.getElementById('metric-visits-sub');
+        if (visitsSub) visitsSub.innerText = `${totalVisitors} sessões únicas no Gate`;
+
         // Card 2: Desbloqueios
         updateDOM('metric-responses', totalUnlocks);
+
         // Card 3: Taxa de Avanço (Desbloqueio / Visitantes)
         const advanceRate = totalVisitors > 0 ? (totalUnlocks / totalVisitors) * 100 : 0;
         updateDOM('metric-steps', advanceRate, 'percent');
@@ -254,10 +297,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (pb) pb.style.width = Math.min(100, Math.max(0, advanceRate)) + '%';
 
         // Card 4: Intenção de Checkout
+        updateDOM('metric-leads', totalCheckouts);
+        const leadsSub = document.getElementById('metric-leads-sub');
         const checkoutRate = totalVisitors > 0 ? (totalCheckouts / totalVisitors) * 100 : 0;
-        updateDOM('metric-leads', checkoutRate, 'percent');
+        if (leadsSub) leadsSub.innerText = `${checkoutRate.toFixed(1)}% do total de visitantes`;
 
-        // Funil de Conversão (Etapa por Etapa)
+        // Funil de Conversão (Jornada Etapa por Etapa)
         updateDOM('funnel-val-1', totalVisitors);
         updateDOM('funnel-val-2', totalUnlocks);
         updateDOM('funnel-val-3', totalVSL);
@@ -268,17 +313,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const checkoutPct = totalVSL > 0 ? (totalCheckouts / totalVSL) * 100 : (totalVisitors > 0 ? (totalCheckouts / totalVisitors) * 100 : 0);
 
         updateDOM('funnel-pct-2', unlockPct, 'percent');
-        updateDOM('funnel-pct-3', vslPct, 'percent');
+        updateDOM('funnel-pct-3', Math.min(100, vslPct), 'percent');
         updateDOM('funnel-pct-4', checkoutPct, 'percent');
 
         const fb2 = document.getElementById('funnel-bar-2');
         if (fb2) fb2.style.width = Math.min(100, Math.max(5, unlockPct)) + '%';
         const fb3 = document.getElementById('funnel-bar-3');
-        if (fb3) fb3.style.width = Math.min(100, Math.max(5, vslPct)) + '%';
+        if (fb3) fb3.style.width = Math.min(100, Math.max(5, Math.min(100, vslPct))) + '%';
         const fb4 = document.getElementById('funnel-bar-4');
         if (fb4) fb4.style.width = Math.min(100, Math.max(5, checkoutPct)) + '%';
 
-        // Taxas Complementares
+        // Taxas de Resumo
         updateDOM('interaction-rate', unlockPct, 'percent');
         updateDOM('bounce-rate', Math.max(0, 100 - unlockPct), 'percent');
 
@@ -303,8 +348,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         })
         .subscribe();
 
-    // Auto refresh every 15s to keep time bins live
-    setInterval(fetchInitialData, 15000);
+    // Auto refresh every 20s
+    setInterval(fetchInitialData, 20000);
 
     // Sidebar Funnel Selector
     document.querySelectorAll('.offer-btn').forEach(btn => {
