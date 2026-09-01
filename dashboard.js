@@ -8,13 +8,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         'latam': {
             title: 'Mapa do Prazer Masculino — LATAM',
             badge: 'GEO LATAM (Espanhol)',
-            badgeClass: 'bg-emerald-100 text-emerald-800',
+            badgeClass: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20',
             aliases: ['latam', 'mapa-prazer-masculino-latam']
         },
         'chave-deusa-prazer-br': {
             title: 'Chave Deusa do Prazer — Brasil',
             badge: 'GEO Brasil (pt-BR)',
-            badgeClass: 'bg-emerald-100 text-emerald-800',
+            badgeClass: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
             aliases: ['chave-deusa-prazer-br', 'chave-deusa-br']
         }
     };
@@ -23,10 +23,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentTimeFilter = 'today';
     let fetchToken = 0;
 
-    // Chart Setup
+    // Dark Chart Setup
     const ctx = document.getElementById('trafficChart').getContext('2d');
-    Chart.defaults.color = '#6b7280';
-    Chart.defaults.scale.grid.color = '#f3f4f6';
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
     
     let trafficChart = new Chart(ctx, {
         type: 'line',
@@ -36,30 +36,42 @@ document.addEventListener('DOMContentLoaded', async () => {
                 {
                     label: 'Visitantes Únicos (Gate)',
                     data: [],
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                    tension: 0.3,
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                    tension: 0.35,
                     fill: true,
+                    pointBackgroundColor: '#38bdf8',
+                    pointBorderColor: '#07090e',
+                    pointBorderWidth: 2,
                     pointRadius: 3,
-                    pointHoverRadius: 6
+                    pointHoverRadius: 6,
+                    borderWidth: 2
                 },
                 {
                     label: 'Desbloqueios (Passaram)',
                     data: [],
-                    borderColor: '#9333ea',
+                    borderColor: '#a855f7',
                     backgroundColor: 'transparent',
-                    tension: 0.3,
+                    tension: 0.35,
+                    pointBackgroundColor: '#a855f7',
+                    pointBorderColor: '#07090e',
+                    pointBorderWidth: 2,
                     pointRadius: 3,
-                    pointHoverRadius: 6
+                    pointHoverRadius: 6,
+                    borderWidth: 2
                 },
                 {
                     label: 'Cliques Checkout (Hotmart)',
                     data: [],
-                    borderColor: '#059669',
+                    borderColor: '#34d399',
                     backgroundColor: 'transparent',
-                    tension: 0.3,
+                    tension: 0.35,
+                    pointBackgroundColor: '#34d399',
+                    pointBorderColor: '#07090e',
+                    pointBorderWidth: 2,
                     pointRadius: 3,
-                    pointHoverRadius: 6
+                    pointHoverRadius: 6,
+                    borderWidth: 2
                 }
             ]
         },
@@ -70,27 +82,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: '#4b5563', usePointStyle: true, boxWidth: 6, font: { weight: '600', size: 11 } }
+                    labels: { 
+                        color: '#94a3b8', 
+                        usePointStyle: true, 
+                        boxWidth: 8, 
+                        font: { weight: '600', size: 11 },
+                        padding: 20
+                    }
                 },
                 tooltip: {
-                    backgroundColor: '#ffffff',
-                    titleColor: '#111827',
-                    bodyColor: '#4b5563',
-                    borderColor: '#e5e7eb',
+                    backgroundColor: 'rgba(11, 15, 23, 0.95)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#94a3b8',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
                     borderWidth: 1,
-                    padding: 10,
-                    boxPadding: 4
+                    padding: 12,
+                    boxPadding: 6,
+                    cornerRadius: 8,
+                    bodyFont: { family: "'JetBrains Mono', monospace" }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: { precision: 0 },
-                    grid: { color: '#f3f4f6' }
+                    ticks: { precision: 0, color: '#64748b' },
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' }
                 },
                 x: {
                     grid: { color: 'transparent' },
-                    ticks: { maxRotation: 0, font: { size: 10 } }
+                    ticks: { maxRotation: 0, font: { size: 10 }, color: '#64748b' }
                 }
             }
         }
@@ -108,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function fetchAllEvents(sinceIso) {
         const aliases = funnelInfo[currentOffer]?.aliases || [currentOffer];
         const pageSize = 1000;
-        const maxPages = 15; // Fetches up to 15,000 rows in parallel (~300ms)
+        const maxPages = 15;
 
         const pagePromises = Array.from({ length: maxPages }, (_, i) => {
             const from = i * pageSize;
@@ -213,7 +233,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         showLoading(false);
         if (myToken !== fetchToken) return;
 
-        // Session sets for pure funnel step calculation
         const uniqueGateViews = new Set();
         const uniqueGateUnlocks = new Set();
         const uniqueVSLViews = new Set();
@@ -231,7 +250,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const eventTime = new Date(row.created_at);
             const sessId = row.session_id || ('row_' + row.id);
 
-            // True stage classification
             if (eventType === 'gate_view' || eventType === 'landing_view') {
                 uniqueGateViews.add(sessId);
             } else if (eventType === 'gate_unlock' || eventType === 'step_advance') {
@@ -242,7 +260,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 uniqueCheckouts.add(sessId);
             }
 
-            // Calculate Bin Index
             let binIndex = -1;
             if (timeFilter === 'today') {
                 binIndex = eventTime.getHours();
@@ -282,7 +299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Card 1: Visitantes Únicos no Gate
         updateDOM('metric-visits', totalVisitors);
         const visitsSub = document.getElementById('metric-visits-sub');
-        if (visitsSub) visitsSub.innerText = `${totalVisitors.toLocaleString('pt-BR')} sessões únicas no Gate`;
+        if (visitsSub) visitsSub.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block mr-1.5"></span> ${totalVisitors.toLocaleString('pt-BR')} sessões únicas no Gate`;
 
         // Card 2: Desbloqueios
         updateDOM('metric-responses', totalUnlocks);
@@ -297,7 +314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateDOM('metric-leads', totalCheckouts);
         const leadsSub = document.getElementById('metric-leads-sub');
         const checkoutRate = totalVisitors > 0 ? (totalCheckouts / totalVisitors) * 100 : 0;
-        if (leadsSub) leadsSub.innerText = `${checkoutRate.toFixed(1)}% do total de visitantes`;
+        if (leadsSub) leadsSub.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block mr-1.5"></span> ${checkoutRate.toFixed(1)}% do total de visitantes`;
 
         // Funil de Conversão (Jornada Etapa por Etapa)
         updateDOM('funnel-val-1', totalVisitors);
@@ -329,7 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         trafficChart.data.datasets[0].data = bins_visitors;
         trafficChart.data.datasets[1].data = bins_unlocks;
         trafficChart.data.datasets[2].data = bins_checkouts;
-        trafficChart.update('none');
+        trafficChart.update();
     }
 
     // Realtime Supabase Channel
@@ -349,23 +366,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     setInterval(fetchInitialData, 20000);
 
     // Sidebar Funnel Selector
-    document.querySelectorAll('.offer-btn').forEach(btn => {
+    document.querySelectorAll('.offer-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
             currentOffer = e.currentTarget.dataset.offer;
-            document.querySelectorAll('.offer-btn').forEach(b => {
-                b.classList.remove('bg-white', 'border', 'border-gray-200', 'shadow-sm', 'text-gray-900');
-                b.classList.add('text-gray-600', 'hover:bg-gray-100');
+            document.querySelectorAll('.offer-item').forEach(b => {
+                b.classList.remove('active');
             });
-            e.currentTarget.classList.add('bg-white', 'border', 'border-gray-200', 'shadow-sm', 'text-gray-900');
-            e.currentTarget.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            e.currentTarget.classList.add('active');
 
-            const info = funnelInfo[currentOffer] || { title: currentOffer, badge: 'Funil', badgeClass: 'bg-gray-100 text-gray-800' };
+            const info = funnelInfo[currentOffer] || { title: currentOffer, badge: 'Funil', badgeClass: 'bg-white/10 text-white' };
             const titleEl = document.getElementById('current-funnel-title');
             const badgeEl = document.getElementById('current-funnel-badge');
             if (titleEl) titleEl.innerText = info.title;
             if (badgeEl) {
                 badgeEl.innerText = info.badge;
-                badgeEl.className = `text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${info.badgeClass}`;
+                badgeEl.className = `text-[10px] font-semibold px-2.5 py-1 rounded-full ${info.badgeClass}`;
             }
             
             fetchInitialData();
@@ -377,11 +392,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.addEventListener('click', (e) => {
             currentTimeFilter = e.currentTarget.dataset.time;
             document.querySelectorAll('.time-btn').forEach(b => {
-                b.classList.remove('bg-white', 'shadow-sm', 'text-gray-900', 'font-semibold');
-                b.classList.add('text-gray-500', 'font-medium');
+                b.classList.remove('active', 'text-white');
+                b.classList.add('text-slate-400');
             });
-            e.currentTarget.classList.add('bg-white', 'shadow-sm', 'text-gray-900', 'font-semibold');
-            e.currentTarget.classList.remove('text-gray-500', 'font-medium');
+            e.currentTarget.classList.add('active', 'text-white');
+            e.currentTarget.classList.remove('text-slate-400');
             fetchInitialData();
         });
     });
