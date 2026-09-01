@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Fetch all events with pagination from Supabase
+    // Fetch all events with proper filter chaining and pagination
     async function fetchAllEvents(sinceIso) {
         const pageSize = 1000;
         let allRows = [];
@@ -112,16 +112,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         const aliases = funnelInfo[currentOffer]?.aliases || [currentOffer];
 
         while (true) {
+            // Apply filter FIRST, then order, then range
             let query = supabase
                 .from('funnel_events')
                 .select('event_type, created_at, offer_id, session_id')
-                .in('offer_id', aliases)
-                .order('created_at', { ascending: true })
-                .range(from, from + pageSize - 1);
+                .in('offer_id', aliases);
 
             if (sinceIso) {
                 query = query.gte('created_at', sinceIso);
             }
+
+            query = query
+                .order('created_at', { ascending: true })
+                .range(from, from + pageSize - 1);
 
             const { data, error } = await query;
 
@@ -176,11 +179,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (periodEl) periodEl.innerText = periodLabels[timeFilter] || 'Período';
 
         if (timeFilter === 'today') {
-            // Start of today in local time / UTC
+            // Midnight today in local time
             since = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-            const currentHour = now.getHours();
-            bins = currentHour + 1;
-            for (let i = 0; i <= currentHour; i++) {
+            bins = 24;
+            for (let i = 0; i < 24; i++) {
                 labels.push(i.toString().padStart(2, '0') + ':00');
             }
         } else if (timeFilter === '24h') {
