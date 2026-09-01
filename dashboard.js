@@ -4,12 +4,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const supabaseKey = 'sb_publishable_MuW-XY0uxvizJ3zqtJKy5A_YMdJNrln';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Tab switching
-    
-    
-    
-    
-    
+    const funnelInfo = {
+        'latam': {
+            title: 'Mapa do Prazer Masculino — LATAM',
+            badge: 'GEO LATAM (Espanhol)',
+            badgeClass: 'bg-emerald-100 text-emerald-800'
+        },
+        'chave-deusa-prazer-br': {
+            title: 'Chave Deusa do Prazer — Brasil',
+            badge: 'GEO Brasil (pt-BR)',
+            badgeClass: 'bg-amber-100 text-amber-800'
+        }
+    };
+
     // Sidebar switching
     const offerButtons = document.querySelectorAll('.offer-btn');
     let currentOffer = 'latam';
@@ -24,16 +31,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         data: {
             labels: [],
             datasets: [
-                { label: 'Visitantes', data: [], borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', tension: 0.4, fill: true },
-                { label: 'Desbloqueios', data: [], borderColor: '#ec4899', backgroundColor: 'transparent', tension: 0.4 },
-                { label: 'Checkouts', data: [], borderColor: '#f97316', backgroundColor: 'transparent', tension: 0.4 }
+                { label: 'Visitantes', data: [], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.08)', tension: 0.35, fill: true },
+                { label: 'Desbloqueios', data: [], borderColor: '#9333ea', backgroundColor: 'transparent', tension: 0.35 },
+                { label: 'Cliques Checkout', data: [], borderColor: '#059669', backgroundColor: 'transparent', tension: 0.35 }
             ]
         },
         options: {
-            responsive: true, maintainAspectRatio: false,
+            responsive: true,
+            maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { position: 'bottom', labels: { color: '#94a3b8', usePointStyle: true, boxWidth: 6 } },
+                legend: { position: 'bottom', labels: { color: '#4b5563', usePointStyle: true, boxWidth: 6, font: { weight: '500' } } },
                 tooltip: { backgroundColor: '#ffffff', titleColor: '#111827', bodyColor: '#4b5563', borderColor: '#e5e7eb', borderWidth: 1 }
             },
             scales: {
@@ -46,26 +54,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Data State
     let metrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
     let currentTimeFilter = '24h';
-    let fetchToken = 0; // guards against a slower stale fetch overwriting a newer one
+    let fetchToken = 0;
 
-    // Supabase caps each request at 1000 rows; paginate to get the full dataset
     async function fetchAllEvents(sinceIso) {
         const pageSize = 1000;
         let allRows = [];
         let from = 0;
+
+        // Query by offer_id OR funnel_id
         while (true) {
             const { data, error } = await supabase
                 .from('funnel_events')
-                .select('event_type, created_at')
+                .select('event_type, created_at, offer_id')
                 .eq('offer_id', currentOffer)
                 .gte('created_at', sinceIso)
                 .order('created_at', { ascending: true })
                 .range(from, from + pageSize - 1);
 
             if (error) {
-                console.error("Error fetching data", error);
+                console.warn("Retrying fetch or error occurred:", error.message);
                 break;
             }
+            if (!data || data.length === 0) break;
             allRows = allRows.concat(data);
             if (data.length < pageSize) break;
             from += pageSize;
@@ -97,13 +107,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const advanceRate = visitors > 0 ? (responses / visitors) * 100 : 0;
         updateDOM('metric-steps', advanceRate, 'percent');
         const pb = document.getElementById('metric-steps-bar');
-        if(pb) pb.style.width = advanceRate + '%';
+        if(pb) pb.style.width = Math.min(100, advanceRate) + '%';
         
-        // Card 4: Taxa de cliques VSL
-        const vslClickRate = visitors > 0 ? (vslClicks / visitors) * 100 : 0;
-        updateDOM('metric-leads', vslClickRate, 'percent');
+        // Card 4: Intenção de Checkout
+        const checkoutRate = visitors > 0 ? (leads / visitors) * 100 : 0;
+        updateDOM('metric-leads', checkoutRate, 'percent');
 
-        // Funnel
+        // Funnel Step Calculations
         const rRate = visitors > 0 ? (responses / visitors) * 100 : 0;
         const vslRate = responses > 0 ? (vslViews / responses) * 100 : 0;
         const lRate = vslViews > 0 ? (leads / vslViews) * 100 : 0;
@@ -117,16 +127,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateDOM('funnel-pct-3', vslRate, 'percent');
         updateDOM('funnel-pct-4', lRate, 'percent');
 
-        updateDOM('funnel-rate', visitors > 0 ? (leads / visitors) * 100 : 0, 'percent');
+        const fb2 = document.getElementById('funnel-bar-2');
+        if(fb2) fb2.style.width = Math.min(100, Math.max(5, rRate)) + '%';
+        const fb3 = document.getElementById('funnel-bar-3');
+        if(fb3) fb3.style.width = Math.min(100, Math.max(5, vslRate)) + '%';
+        const fb4 = document.getElementById('funnel-bar-4');
+        if(fb4) fb4.style.width = Math.min(100, Math.max(5, lRate)) + '%';
+
         updateDOM('interaction-rate', rRate, 'percent');
-        updateDOM('bounce-rate', 100 - rRate, 'percent');
-
-
+        updateDOM('bounce-rate', Math.max(0, 100 - rRate), 'percent');
     }
 
     async function fetchInitialData() {
         const myToken = ++fetchToken;
-        const timeFilter = currentTimeFilter; // snapshot: this fetch always renders for the filter it started with
+        const timeFilter = currentTimeFilter;
 
         const freshMetrics = { visitors: 0, responses: 0, vslViews: 0, leads: 0, vslClicks: 0 };
 
@@ -159,20 +173,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const data = await fetchAllEvents(since.toISOString());
-
-        // A newer fetch (tab switch, offer switch, or realtime refresh) started after
-        // this one — discard these results instead of overwriting the current view.
         if (myToken !== fetchToken) return;
 
         const bins_data = [Array(bins).fill(0), Array(bins).fill(0), Array(bins).fill(0)];
 
         data.forEach(row => {
             const eventType = row.event_type;
-            const eventTime = new Date(row.created_at);
+            const eventTime = new Date(row.created_at || row.occurred_at);
 
             // Update Totals
-            if (eventType === 'gate_view') freshMetrics.visitors++;
-            else if (eventType === 'gate_unlock') freshMetrics.responses++;
+            if (eventType === 'gate_view' || eventType === 'landing_view') freshMetrics.visitors++;
+            else if (eventType === 'gate_unlock' || eventType === 'step_advance') freshMetrics.responses++;
             else if (eventType === 'vsl_view') freshMetrics.vslViews++;
             else if (eventType === 'vsl_player_interaction') freshMetrics.vslClicks++;
             else if (eventType === 'click_checkout') freshMetrics.leads++;
@@ -186,8 +197,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             if (binIndex >= 0 && binIndex < bins) {
-                if (eventType === 'gate_view') bins_data[0][binIndex]++;
-                else if (eventType === 'gate_unlock') bins_data[1][binIndex]++;
+                if (eventType === 'gate_view' || eventType === 'landing_view') bins_data[0][binIndex]++;
+                else if (eventType === 'gate_unlock' || eventType === 'step_advance') bins_data[1][binIndex]++;
                 else if (eventType === 'click_checkout') bins_data[2][binIndex]++;
             }
         });
@@ -202,15 +213,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         trafficChart.update('none');
     }
 
-    // Subscribe to realtime inserts. Traffic can insert several rows per second, so
-    // coalesce bursts instead of re-running the full paginated fetch on every row.
+    // Subscribe to realtime inserts
     let realtimeDebounce = null;
     supabase
       .channel('realtime-events')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'funnel_events' }, payload => {
-          if (payload.new.offer_id === currentOffer) {
+          if (payload.new.offer_id === currentOffer || payload.new.funnel_id === currentOffer) {
               clearTimeout(realtimeDebounce);
-              realtimeDebounce = setTimeout(fetchInitialData, 2000);
+              realtimeDebounce = setTimeout(fetchInitialData, 1500);
           }
       })
       .subscribe();
@@ -219,12 +229,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.addEventListener('click', (e) => {
             currentOffer = e.currentTarget.dataset.offer;
             offerButtons.forEach(b => {
-                b.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
-                b.classList.add('text-gray-500', 'hover:text-gray-900');
-                
+                b.classList.remove('bg-white', 'border', 'border-gray-200', 'shadow-sm', 'text-gray-900');
+                b.classList.add('text-gray-600', 'hover:bg-gray-100');
             });
-            e.currentTarget.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
-            e.currentTarget.classList.remove('text-gray-500', 'hover:text-gray-900');
+            e.currentTarget.classList.add('bg-white', 'border', 'border-gray-200', 'shadow-sm', 'text-gray-900');
+            e.currentTarget.classList.remove('text-gray-600', 'hover:bg-gray-100');
+
+            const info = funnelInfo[currentOffer] || { title: currentOffer, badge: 'Funil', badgeClass: 'bg-gray-100 text-gray-800' };
+            const titleEl = document.getElementById('current-funnel-title');
+            const badgeEl = document.getElementById('current-funnel-badge');
+            if (titleEl) titleEl.innerText = info.title;
+            if (badgeEl) {
+                badgeEl.innerText = info.badge;
+                badgeEl.className = `text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${info.badgeClass}`;
+            }
             
             fetchInitialData();
         });
@@ -234,15 +252,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.addEventListener('click', (e) => {
             currentTimeFilter = e.currentTarget.dataset.time;
             document.querySelectorAll('.time-btn').forEach(b => {
-                b.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
-                b.classList.add('text-gray-500', 'hover:text-gray-900');
+                b.classList.remove('bg-white', 'shadow-sm', 'text-gray-900', 'font-semibold');
+                b.classList.add('text-gray-500', 'font-medium');
             });
-            e.currentTarget.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
-            e.currentTarget.classList.remove('text-gray-500', 'hover:text-gray-900');
+            e.currentTarget.classList.add('bg-white', 'shadow-sm', 'text-gray-900', 'font-semibold');
+            e.currentTarget.classList.remove('text-gray-500', 'font-medium');
             fetchInitialData();
         });
     });
 
     fetchInitialData();
-    
 });

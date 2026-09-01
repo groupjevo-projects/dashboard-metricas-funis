@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Analítico - JEVO Group</title>
+    <title>Dashboard Analítico - JEVO Group Funnel Ops</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -16,7 +16,6 @@
             0% { color: #16a34a; }
             100% { color: #111827; }
         }
-        .connection-line { stroke: #d1d5db; stroke-width: 2; fill: none; }
     </style>
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
@@ -33,32 +32,54 @@
         </div>
 
         <div class="p-4 flex-1 overflow-y-auto">
-            <h2 class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Ofertas Ativas</h2>
-            <nav class="space-y-1">
-                <button class="offer-btn w-full flex items-center space-x-3 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium transition-colors" data-offer="latam">
-                    <span class="text-sm leading-none mr-2">🇪🇸</span>
-                    <div class="text-left">
-                        <div class="text-sm">Mapa Prazer Latam</div>
+            <h2 class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">Funis da Operação</h2>
+            <nav class="space-y-1.5" id="offer-nav">
+                <button class="offer-btn active w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-white border border-gray-200 text-gray-900 shadow-sm font-medium transition-all" data-offer="latam">
+                    <span class="text-base leading-none">🇪🇸</span>
+                    <div class="text-left flex-1">
+                        <div class="text-xs font-bold text-gray-900">Mapa Prazer Latam</div>
+                        <div class="text-[10px] text-emerald-600 font-medium flex items-center mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1"></span> Ativo em Produção
+                        </div>
+                    </div>
+                </button>
+                <button class="offer-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all" data-offer="chave-deusa-prazer-br">
+                    <span class="text-base leading-none">🇧🇷</span>
+                    <div class="text-left flex-1">
+                        <div class="text-xs font-bold text-gray-900">Chave Deusa Brasil</div>
+                        <div class="text-[10px] text-amber-600 font-medium flex items-center mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block mr-1"></span> Em Onboarding (Preview)
+                        </div>
                     </div>
                 </button>
             </nav>
         </div>
+
+        <div class="p-4 border-t border-gray-100">
+            <div class="bg-gray-50 rounded-lg p-3 text-[11px] text-gray-500">
+                <span class="font-semibold text-gray-700 block mb-1">Status do Control Plane</span>
+                <div class="flex items-center text-emerald-600 mb-0.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Supabase Conectado
+                </div>
+                <div class="text-[10px] text-gray-400">groupjevo@gmail.com</div>
+            </div>
+        </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden">
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#fafafa]">
         <!-- Top Nav -->
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shrink-0">
-            <div class="flex space-x-6 h-full items-end pb-0">
-                <button id="tab-summary" class="tab-btn active pb-4 border-b-2 border-gray-900 text-sm font-semibold text-gray-900" data-target="summary">Visão Geral</button>
-                
+            <div class="flex items-center space-x-4">
+                <h1 id="current-funnel-title" class="text-base font-bold text-gray-900">Mapa do Prazer Masculino — LATAM</h1>
+                <span id="current-funnel-badge" class="text-[11px] bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full">GEO LATAM</span>
             </div>
 
             <!-- Time Filter -->
-            <div class="flex bg-gray-100 p-1 rounded-md border border-gray-200" id="time-filters">
-                <button data-time="24h" class="time-btn px-3 py-1 text-xs rounded text-gray-900 bg-white shadow-sm font-medium">24h</button>
-                <button data-time="7d" class="time-btn px-3 py-1 text-xs rounded text-gray-500 hover:text-gray-900 transition-colors">7d</button>
-                <button data-time="30d" class="time-btn px-3 py-1 text-xs rounded text-gray-500 hover:text-gray-900 transition-colors">30d</button>
+            <div class="flex bg-gray-100 p-1 rounded-lg border border-gray-200" id="time-filters">
+                <button data-time="24h" class="time-btn px-3 py-1 text-xs rounded-md text-gray-900 bg-white shadow-sm font-semibold transition-all">Últimas 24h</button>
+                <button data-time="7d" class="time-btn px-3 py-1 text-xs rounded-md text-gray-500 hover:text-gray-900 font-medium transition-all">7 dias</button>
+                <button data-time="30d" class="time-btn px-3 py-1 text-xs rounded-md text-gray-500 hover:text-gray-900 font-medium transition-all">30 dias</button>
             </div>
         </header>
 
@@ -69,26 +90,41 @@
                 <!-- Metrics Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <h3 class="text-gray-500 text-[11px] font-semibold uppercase tracking-wider mb-2">Visitas e Acessos</h3>
-                        <div class="text-3xl font-bold text-gray-900" id="metric-visits">0</div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Visitas Únicas</h3>
+                            <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-medium">Sessões</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-gray-900" id="metric-visits">0</div>
+                        <p class="text-[11px] text-gray-400 mt-2">Total de acessos à landing page</p>
                     </div>
                     
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <h3 class="text-gray-500 text-[11px] font-semibold uppercase tracking-wider mb-2">Começou interações</h3>
-                        <div class="text-3xl font-bold text-gray-900" id="metric-responses">0</div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Desbloqueios de Gate</h3>
+                            <span class="text-[10px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded font-medium">Interação</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-gray-900" id="metric-responses">0</div>
+                        <p class="text-[11px] text-gray-400 mt-2">Usuários que liberaram o gate</p>
                     </div>
                     
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <h3 class="text-gray-500 text-[11px] font-semibold uppercase tracking-wider mb-2">Avanço p/ Próxima Etapa</h3>
-                        <div class="text-3xl font-bold text-gray-900 mb-3" id="metric-steps">0%</div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Taxa de Avanço</h3>
+                            <span class="text-[10px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded font-medium">Gate ➔ VSL</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-gray-900 mb-2" id="metric-steps">0%</div>
                         <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" id="metric-steps-bar" style="width: 0%;"></div>
+                            <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500" id="metric-steps-bar" style="width: 0%;"></div>
                         </div>
                     </div>
                     
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <h3 class="text-gray-500 text-[11px] font-semibold uppercase tracking-wider mb-2">Cliques na VSL</h3>
-                        <div class="text-3xl font-bold text-gray-900" id="metric-leads">0%</div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-gray-500 text-[11px] font-bold uppercase tracking-wider">Intenção de Checkout</h3>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded font-medium">Cliques CTA</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-gray-900" id="metric-leads">0%</div>
+                        <p class="text-[11px] text-gray-400 mt-2">Taxa de cliques em direção ao Hotmart</p>
                     </div>
                 </div>
 
@@ -96,30 +132,30 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Funnel Column -->
                     <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                        <h3 class="text-sm font-semibold text-gray-900 mb-6">Desempenho do Funil</h3>
+                        <h3 class="text-sm font-bold text-gray-900 mb-6">Jornada de Conversão</h3>
                         <div class="space-y-6 relative">
                             <div class="flex items-center justify-between">
-                                <div class="w-24 text-xs font-medium text-gray-500">Visitantes</div>
-                                <div class="flex-1 mx-4 h-10 bg-blue-100 rounded flex items-center justify-center"><div class="h-full bg-blue-500 rounded" style="width: 100%"></div></div>
-                                <div class="w-12 text-right"><div class="font-bold text-gray-900" id="funnel-val-1">0</div><div class="text-[10px] text-gray-400">100%</div></div>
+                                <div class="w-24 text-xs font-semibold text-gray-600">1. Visitantes</div>
+                                <div class="flex-1 mx-4 h-9 bg-blue-100 rounded-lg flex items-center p-1"><div class="h-full bg-blue-600 rounded-md" style="width: 100%"></div></div>
+                                <div class="w-14 text-right"><div class="font-bold text-gray-900 text-sm" id="funnel-val-1">0</div><div class="text-[10px] text-gray-400">100%</div></div>
                             </div>
                             
                             <div class="flex items-center justify-between">
-                                <div class="w-24 text-xs font-medium text-gray-500">Respostas</div>
-                                <div class="flex-1 mx-4 h-10 bg-purple-100 rounded flex items-center justify-center"><div class="h-full bg-purple-500 rounded" style="width: 80%"></div></div>
-                                <div class="w-12 text-right"><div class="font-bold text-gray-900" id="funnel-val-2">0</div><div class="text-[10px] text-gray-400" id="funnel-pct-2">0%</div></div>
+                                <div class="w-24 text-xs font-semibold text-gray-600">2. Gate Unlock</div>
+                                <div class="flex-1 mx-4 h-9 bg-purple-100 rounded-lg flex items-center p-1"><div class="h-full bg-purple-600 rounded-md" id="funnel-bar-2" style="width: 80%"></div></div>
+                                <div class="w-14 text-right"><div class="font-bold text-gray-900 text-sm" id="funnel-val-2">0</div><div class="text-[10px] text-gray-400" id="funnel-pct-2">0%</div></div>
                             </div>
 
                             <div class="flex items-center justify-between">
-                                <div class="w-24 text-xs font-medium text-gray-500">VSL View</div>
-                                <div class="flex-1 mx-4 h-10 bg-pink-100 rounded flex items-center justify-center"><div class="h-full bg-pink-500 rounded" style="width: 60%"></div></div>
-                                <div class="w-12 text-right"><div class="font-bold text-gray-900" id="funnel-val-3">0</div><div class="text-[10px] text-gray-400" id="funnel-pct-3">0%</div></div>
+                                <div class="w-24 text-xs font-semibold text-gray-600">3. VSL View</div>
+                                <div class="flex-1 mx-4 h-9 bg-pink-100 rounded-lg flex items-center p-1"><div class="h-full bg-pink-600 rounded-md" id="funnel-bar-3" style="width: 60%"></div></div>
+                                <div class="w-14 text-right"><div class="font-bold text-gray-900 text-sm" id="funnel-val-3">0</div><div class="text-[10px] text-gray-400" id="funnel-pct-3">0%</div></div>
                             </div>
 
                             <div class="flex items-center justify-between">
-                                <div class="w-24 text-xs font-medium text-gray-500">Leads</div>
-                                <div class="flex-1 mx-4 h-10 bg-emerald-100 rounded flex items-center justify-center"><div class="h-full bg-emerald-500 rounded" style="width: 20%"></div></div>
-                                <div class="w-12 text-right"><div class="font-bold text-gray-900" id="funnel-val-4">0</div><div class="text-[10px] text-gray-400" id="funnel-pct-4">0%</div></div>
+                                <div class="w-24 text-xs font-semibold text-gray-600">4. Checkout</div>
+                                <div class="flex-1 mx-4 h-9 bg-emerald-100 rounded-lg flex items-center p-1"><div class="h-full bg-emerald-600 rounded-md" id="funnel-bar-4" style="width: 20%"></div></div>
+                                <div class="w-14 text-right"><div class="font-bold text-gray-900 text-sm" id="funnel-val-4">0</div><div class="text-[10px] text-gray-400" id="funnel-pct-4">0%</div></div>
                             </div>
                         </div>
                     </div>
@@ -128,12 +164,12 @@
                     <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex flex-col">
                         <div class="flex justify-between items-start mb-6">
                             <div>
-                                <h3 class="text-sm font-semibold text-gray-900">Tráfego vs Interação</h3>
-                                <p class="text-xs text-gray-500 mt-1">Taxa de interação (Quiz): <span id="interaction-rate" class="text-blue-600 font-medium">0%</span></p>
+                                <h3 class="text-sm font-bold text-gray-900">Telemetria Temporal (Acessos vs Interações)</h3>
+                                <p class="text-xs text-gray-500 mt-1">Taxa de engajamento no Gate: <span id="interaction-rate" class="text-blue-600 font-bold">0%</span></p>
                             </div>
-                            <div class="text-xs text-gray-500">Taxa de rejeição: <span id="bounce-rate" class="text-red-500 font-medium">0%</span></div>
+                            <div class="text-xs text-gray-500 font-medium">Taxa de evasão: <span id="bounce-rate" class="text-rose-500 font-bold">0%</span></div>
                         </div>
-                        <div class="flex-1 min-h-[250px] relative">
+                        <div class="flex-1 min-h-[260px] relative">
                             <canvas id="trafficChart"></canvas>
                         </div>
                     </div>
