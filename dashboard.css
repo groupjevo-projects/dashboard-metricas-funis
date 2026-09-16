@@ -92,19 +92,91 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* Offer Nav Button */
-.offer-item {
+/* Offer & Member Nav Button */
+.offer-item, .member-nav-item {
   transition: all 0.2s ease;
   border: 1px solid transparent;
 }
 
-.offer-item.active {
+.offer-item.active, .member-nav-item.active {
   background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
   border-color: rgba(56, 189, 248, 0.3);
   box-shadow: 0 0 15px -3px rgba(56, 189, 248, 0.15);
 }
 
-.offer-item:hover:not(.active) {
+.offer-item:hover:not(.active), .member-nav-item:hover:not(.active) {
   background: rgba(255, 255, 255, 0.03);
   border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Filter Pills */
+.member-filter-pill {
+  transition: all 0.18s ease;
+  border: 1px solid transparent;
+}
+
+.member-filter-pill.active {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+  font-weight: 700;
+}
+
+.member-filter-pill:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Table Hover & Styling */
+#members-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+#members-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* AI Drawer */
+#ai-drawer.drawer-open {
+  transform: translateX(0);
+}
+
+#ai-drawer-overlay.overlay-open {
+  display: block;
+}
+
+/* Badges */
+.badge-hotmart {
+  background: rgba(249, 115, 22, 0.12);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.25);
+}
+
+.badge-payt {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.badge-kiwify {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.badge-drip-locked {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.badge-drip-unlocked {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.badge-legacy {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.25);
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Jevo — Funnel Ops Analytics</title>
+    <title>Group Jevo — Funnel & Members Ops Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -25,7 +25,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="dashboard.css?v=6">
+    <link rel="stylesheet" href="dashboard.css?v=8">
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body class="flex h-screen overflow-hidden text-slate-100 antialiased selection:bg-cyan-500/20 selection:text-cyan-300">
@@ -40,26 +40,27 @@
                 </div>
                 <div>
                     <span class="font-extrabold text-[15px] tracking-tight text-white block leading-tight">JEVO <span class="font-normal text-slate-400">group</span></span>
-                    <span class="text-[9px] uppercase tracking-widest font-semibold text-cyan-400/80">Funnel Ops Control</span>
+                    <span class="text-[9px] uppercase tracking-widest font-semibold text-cyan-400/80">Ops Control Plane</span>
                 </div>
             </div>
         </div>
 
-        <!-- Funnel Navigation -->
-        <div class="p-4 flex-1 overflow-y-auto space-y-4">
+        <!-- Navigation Sections -->
+        <div class="p-4 flex-1 overflow-y-auto space-y-5">
+            <!-- Group 1: Funis & Analytics -->
             <div>
                 <div class="flex items-center justify-between px-3 mb-2">
-                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ofertas & Funis</h2>
+                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Funis de Vendas</h2>
                     <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.05] text-slate-400 font-mono">2 ativos</span>
                 </div>
                 
-                <nav class="space-y-1.5" id="offer-nav">
+                <nav class="space-y-1" id="funnel-nav">
                     <!-- LATAM Funnel -->
-                    <button class="offer-item active w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-left" data-offer="latam">
-                        <span class="text-xl shrink-0">🇪🇸</span>
+                    <button class="nav-item offer-item active w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="funnel" data-target="latam">
+                        <span class="text-lg shrink-0">🇪🇸</span>
                         <div class="flex-1 min-w-0">
                             <div class="text-xs font-bold text-white truncate">Mapa Prazer Latam</div>
-                            <div class="flex items-center space-x-1.5 mt-0.5">
+                            <div class="flex items-center space-x-1 mt-0.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
                                 <span class="text-[10px] text-emerald-400 font-medium">Ativo em Produção</span>
                             </div>
@@ -67,11 +68,11 @@
                     </button>
 
                     <!-- Brasil Funnel -->
-                    <button class="offer-item w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-left" data-offer="chave-deusa-prazer-br">
-                        <span class="text-xl shrink-0">🇧🇷</span>
+                    <button class="nav-item offer-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="funnel" data-target="chave-deusa-prazer-br">
+                        <span class="text-lg shrink-0">🇧🇷</span>
                         <div class="flex-1 min-w-0">
-                            <div class="text-xs font-bold text-slate-200 truncate">Chave Deusa Brasil</div>
-                            <div class="flex items-center space-x-1.5 mt-0.5">
+                            <div class="text-xs font-bold text-slate-300 truncate">Chave Deusa Brasil</div>
+                            <div class="flex items-center space-x-1 mt-0.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
                                 <span class="text-[10px] text-slate-400 font-medium">chavesdeusa.online</span>
                             </div>
@@ -79,19 +80,76 @@
                     </button>
                 </nav>
             </div>
+
+            <!-- Group 2: Áreas de Membros & Drip 7 Dias -->
+            <div>
+                <div class="flex items-center justify-between px-3 mb-2">
+                    <h2 class="text-[10px] font-bold text-cyan-400 uppercase tracking-widest flex items-center">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 mr-1.5 animate-pulse"></span>
+                        Gestão de Membros
+                    </h2>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 font-mono">Drip 7d</span>
+                </div>
+                
+                <nav class="space-y-1" id="members-nav">
+                    <!-- LATAM Members -->
+                    <button class="nav-item member-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="members" data-target="mapa-prazer-masculino-latam">
+                        <span class="text-lg shrink-0">🌎</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-bold text-slate-300 truncate">Mapa LATAM</div>
+                            <div class="flex items-center space-x-1.5 mt-0.5">
+                                <span class="text-[9px] px-1 rounded bg-orange-500/20 text-orange-300 font-mono">Hotmart</span>
+                                <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">Kiwify</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- BR Members -->
+                    <button class="nav-item member-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="members" data-target="mapa-prazer-masculino-br">
+                        <span class="text-lg shrink-0">🇧🇷</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-bold text-slate-300 truncate">Mapa Brasil</div>
+                            <div class="flex items-center space-x-1.5 mt-0.5">
+                                <span class="text-[9px] px-1 rounded bg-blue-500/20 text-blue-300 font-mono">Payt</span>
+                                <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">Kiwify</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- EN Members -->
+                    <button class="nav-item member-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="members" data-target="mapa-prazer-masculino-en">
+                        <span class="text-lg shrink-0">🇺🇸</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-bold text-slate-300 truncate">Mapa Inglês</div>
+                            <div class="flex items-center space-x-1.5 mt-0.5">
+                                <span class="text-[9px] px-1 rounded bg-orange-500/20 text-orange-300 font-mono">Hotmart</span>
+                                <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">Kiwify</span>
+                            </div>
+                        </div>
+                    </button>
+                </nav>
+            </div>
         </div>
 
-        <!-- Control Plane Status Footer -->
-        <div class="p-4 border-t border-white/[0.06]">
-            <div class="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3.5">
-                <div class="flex items-center justify-between mb-1.5">
+        <!-- AI Copilot Quick Button & Footer Status -->
+        <div class="p-4 border-t border-white/[0.06] space-y-3">
+            <button id="open-ai-copilot-btn" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600/20 via-blue-600/20 to-purple-600/20 hover:from-cyan-600/30 hover:to-purple-600/30 border border-cyan-500/30 text-white text-xs font-bold transition-all shadow-lg shadow-cyan-500/10 group">
+                <span class="flex items-center space-x-2">
+                    <span class="text-base group-hover:scale-110 transition-transform">🤖</span>
+                    <span>Copiloto IA Membros</span>
+                </span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-400 text-black font-extrabold uppercase">IA</span>
+            </button>
+
+            <div class="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3">
+                <div class="flex items-center justify-between mb-1">
                     <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Control Plane</span>
                     <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                         <span class="w-1 h-1 rounded-full bg-emerald-400 mr-1 animate-pulse"></span> Live Sync
                     </span>
                 </div>
                 <div class="text-xs font-semibold text-slate-200">Supabase Engine</div>
-                <div class="text-[10px] text-slate-500 font-mono mt-0.5 truncate">groupjevo@gmail.com</div>
+                <div class="text-[10px] text-slate-500 font-mono truncate">Multi-Gateway Drip v2.0</div>
             </div>
         </div>
     </aside>
@@ -102,35 +160,56 @@
         <!-- Top Nav Header -->
         <header class="h-16 border-b border-white/[0.06] bg-[#080c14]/80 backdrop-blur-md flex items-center justify-between px-8 shrink-0">
             <div class="flex items-center space-x-4">
-                <h1 id="current-funnel-title" class="text-base font-extrabold text-white tracking-tight">Mapa do Prazer Masculino — LATAM</h1>
-                <span id="current-funnel-badge" class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">GEO LATAM</span>
+                <h1 id="current-view-title" class="text-base font-extrabold text-white tracking-tight">Mapa do Prazer Masculino — LATAM</h1>
+                <span id="current-view-badge" class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">GEO LATAM</span>
                 
                 <span id="loading-indicator" class="hidden text-xs text-cyan-400 font-medium items-center">
                     <svg class="animate-spin -ml-1 mr-2 h-3.5 w-3.5 text-cyan-400 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Sincronizando telemetria...
+                    Sincronizando...
                 </span>
             </div>
 
-            <!-- Segmented Time Filter -->
-            <div class="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08]" id="time-filters">
-                <button data-time="today" class="time-btn segmented-btn active px-3.5 py-1.5 text-xs rounded-lg text-white font-semibold transition-all">Hoje</button>
-                <button data-time="24h" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">24 horas</button>
-                <button data-time="7d" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">7 dias</button>
-                <button data-time="30d" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">30 dias</button>
+            <!-- Top Header Controls (Filters for Funnel / Quick Actions for Members) -->
+            <div class="flex items-center space-x-3">
+                <!-- Funnel Time Filter -->
+                <div class="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08]" id="funnel-time-filters">
+                    <button data-time="today" class="time-btn segmented-btn active px-3.5 py-1.5 text-xs rounded-lg text-white font-semibold transition-all">Hoje</button>
+                    <button data-time="24h" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">24 horas</button>
+                    <button data-time="7d" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">7 dias</button>
+                    <button data-time="30d" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">30 dias</button>
+                </div>
+
+                <!-- Members Area Quick Toggle Buttons -->
+                <div class="hidden items-center bg-black/40 p-1 rounded-xl border border-white/[0.08]" id="members-area-tabs">
+                    <button data-funnel="mapa-prazer-masculino-latam" class="member-tab-btn segmented-btn active px-3 py-1.5 text-xs rounded-lg text-white font-semibold flex items-center space-x-1.5">
+                        <span>🌎</span> <span>LATAM</span>
+                    </button>
+                    <button data-funnel="mapa-prazer-masculino-br" class="member-tab-btn segmented-btn px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium flex items-center space-x-1.5">
+                        <span>🇧🇷</span> <span>Brasil</span>
+                    </button>
+                    <button data-funnel="mapa-prazer-masculino-en" class="member-tab-btn segmented-btn px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium flex items-center space-x-1.5">
+                        <span>🇺🇸</span> <span>Inglês</span>
+                    </button>
+                </div>
+
+                <!-- Open Chat Button in Header -->
+                <button id="header-ai-btn" class="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-slate-300 hover:text-cyan-400 transition-all" title="Abrir Copiloto IA">
+                    <span class="text-base">💬</span>
+                </button>
             </div>
         </header>
 
         <!-- Main Dashboard View Container -->
         <div class="flex-1 overflow-y-auto p-8">
-            <div id="view-summary" class="space-y-6 max-w-7xl mx-auto">
-                
+            
+            <!-- VIEW 1: FUNNELS ANALYTICS -->
+            <div id="view-funnels" class="space-y-6 max-w-7xl mx-auto">
                 <!-- KPI Metrics Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    
-                    <!-- Metric Card 1: Visitantes -->
+                    <!-- Card 1: Visitantes -->
                     <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
                         <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400 opacity-60"></div>
                         <div class="flex items-center justify-between mb-3">
@@ -143,7 +222,7 @@
                         </p>
                     </div>
                     
-                    <!-- Metric Card 2: Desbloqueios -->
+                    <!-- Card 2: Desbloqueios -->
                     <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
                         <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 to-indigo-400 opacity-60"></div>
                         <div class="flex items-center justify-between mb-3">
@@ -156,7 +235,7 @@
                         </p>
                     </div>
                     
-                    <!-- Metric Card 3: Taxa de Avanço -->
+                    <!-- Card 3: Taxa de Avanço -->
                     <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
                         <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 to-teal-400 opacity-60"></div>
                         <div class="flex items-center justify-between mb-3">
@@ -169,7 +248,7 @@
                         </div>
                     </div>
                     
-                    <!-- Metric Card 4: Intenção de Checkout -->
+                    <!-- Card 4: Intenção de Checkout -->
                     <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
                         <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 to-rose-400 opacity-60"></div>
                         <div class="flex items-center justify-between mb-3">
@@ -185,7 +264,6 @@
 
                 <!-- Charts & Funnel Journey Row -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
                     <!-- Funnel Stage Progression -->
                     <div class="glass-card rounded-2xl p-6 flex flex-col justify-between">
                         <div>
@@ -198,7 +276,6 @@
                             </div>
 
                             <div class="space-y-5">
-                                <!-- Step 1: Visitantes -->
                                 <div>
                                     <div class="flex justify-between items-center text-xs mb-1.5">
                                         <span class="font-semibold text-slate-300 flex items-center">
@@ -215,7 +292,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 2: Gate Unlock -->
                                 <div>
                                     <div class="flex justify-between items-center text-xs mb-1.5">
                                         <span class="font-semibold text-slate-300 flex items-center">
@@ -232,7 +308,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 3: VSL View -->
                                 <div>
                                     <div class="flex justify-between items-center text-xs mb-1.5">
                                         <span class="font-semibold text-slate-300 flex items-center">
@@ -249,7 +324,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Step 4: Checkout Click -->
                                 <div>
                                     <div class="flex justify-between items-center text-xs mb-1.5">
                                         <span class="font-semibold text-slate-300 flex items-center">
@@ -295,9 +369,189 @@
                     </div>
                 </div>
             </div>
+
+            <!-- VIEW 2: MEMBERS ACCESS & 7-DAY DRIP MANAGEMENT -->
+            <div id="view-members" class="hidden space-y-6 max-w-7xl mx-auto">
+                <!-- Member Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Total Members -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400 opacity-60"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total de Alunas</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20" id="member-kpi-area-badge">LATAM</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-white font-mono-num tracking-tight" id="member-kpi-total">0</div>
+                        <p class="text-[11px] text-slate-400 mt-2 flex items-center">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block mr-1.5"></span> Base cadastrada na oferta
+                        </p>
+                    </div>
+
+                    <!-- In 7-Day Drip Lock -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 to-orange-400 opacity-60"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Em Drip (Bloqueado)</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">⏳ &lt; 7 Dias</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-amber-400 font-mono-num tracking-tight" id="member-kpi-drip">0</div>
+                        <p class="text-[11px] text-slate-400 mt-2 flex items-center">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block mr-1.5"></span> Desbloqueio automático previsto
+                        </p>
+                    </div>
+
+                    <!-- Bonus Unlocked (7d+ / Override) -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 to-teal-400 opacity-60"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Bônus Liberados</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">✅ 7d+ / Manual</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-emerald-400 font-mono-num tracking-tight" id="member-kpi-unlocked">0</div>
+                        <p class="text-[11px] text-slate-400 mt-2 flex items-center">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block mr-1.5"></span> 100% dos bônus ativos
+                        </p>
+                    </div>
+
+                    <!-- Legacy Buyers (Full Access) -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 to-pink-400 opacity-60"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Alunas Legadas</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">👑 Kiwify / Full</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-purple-300 font-mono-num tracking-tight" id="member-kpi-legacy">0</div>
+                        <p class="text-[11px] text-slate-400 mt-2 flex items-center">
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 inline-block mr-1.5"></span> Acesso perpétuo imediato
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Members Control & Filter Bar -->
+                <div class="glass-card rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex-1 flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3">
+                        <!-- Search Box -->
+                        <div class="relative flex-1 max-w-md">
+                            <input type="text" id="member-search-input" placeholder="Buscar por nome, e-mail ou transação..." class="w-full bg-[#080c14]/90 border border-white/[0.1] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors">
+                            <span class="absolute left-3 top-3 text-slate-500 text-xs">🔍</span>
+                        </div>
+
+                        <!-- Status Filter Pills -->
+                        <div class="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] overflow-x-auto space-x-1" id="member-status-filters">
+                            <button data-status="all" class="member-filter-pill active px-3 py-1.5 text-xs rounded-lg text-white font-semibold transition-all">Todas (<span id="count-filter-all">0</span>)</button>
+                            <button data-status="drip" class="member-filter-pill px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">Em Drip (<span id="count-filter-drip">0</span>)</button>
+                            <button data-status="unlocked" class="member-filter-pill px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">Liberadas (<span id="count-filter-unlocked">0</span>)</button>
+                            <button data-status="legacy" class="member-filter-pill px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">Legadas (<span id="count-filter-legacy">0</span>)</button>
+                        </div>
+                    </div>
+
+                    <!-- Actions Buttons -->
+                    <div class="flex items-center space-x-2">
+                        <button id="refresh-members-btn" class="px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-semibold text-slate-200 transition-all flex items-center space-x-1.5">
+                            <span>🔄</span>
+                            <span>Atualizar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Members High Density Data Table -->
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="members-table">
+                            <thead>
+                                <tr class="border-b border-white/[0.08] bg-white/[0.02] text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <th class="py-3.5 px-6">Aluna</th>
+                                    <th class="py-3.5 px-4">Gateway</th>
+                                    <th class="py-3.5 px-4">Data da Compra</th>
+                                    <th class="py-3.5 px-4">Status Drip (7 Dias)</th>
+                                    <th class="py-3.5 px-4">Telemetria de Acesso</th>
+                                    <th class="py-3.5 px-6 text-right">Ação Operacional</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/[0.04] text-xs" id="members-tbody">
+                                <!-- Dynamic Rows Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="members-empty" class="hidden py-12 text-center text-slate-400 space-y-2">
+                        <div class="text-3xl">📭</div>
+                        <div class="text-sm font-semibold text-white">Nenhum membro encontrado</div>
+                        <div class="text-xs text-slate-500">Tente ajustar a busca ou os filtros acima.</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
-    <script src="dashboard.js?v=7"></script>
+    <!-- AI COPILOT DRAWER (GEMINI INTELLIGENCE) -->
+    <div id="ai-drawer-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity"></div>
+    <aside id="ai-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[#080d17] border-l border-white/[0.1] z-50 flex flex-col shadow-2xl translate-x-full transition-transform duration-300 ease-out">
+        <!-- Header -->
+        <div class="p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#0b111e]">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 p-0.5 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <span class="text-lg">🤖</span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-extrabold text-white tracking-tight flex items-center">
+                        Copiloto IA Group Jevo
+                        <span class="ml-2 text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 font-mono border border-cyan-500/20">Gemini</span>
+                    </h3>
+                    <div class="flex items-center space-x-1.5 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+                        <span class="text-[10px] text-emerald-400 font-medium">Conectado ao Supabase</span>
+                    </div>
+                </div>
+            </div>
+            <button id="close-ai-drawer-btn" class="p-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors">
+                ✕
+            </button>
+        </div>
+
+        <!-- Chat Suggestions / Chips -->
+        <div class="px-5 py-3 border-b border-white/[0.06] bg-white/[0.01] overflow-x-auto">
+            <div class="flex space-x-2 text-[11px] whitespace-nowrap">
+                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Quantas alunas em Drip completam 7 dias nos próximos 3 dias?">
+                    ⏳ Quem desbloqueia em breve?
+                </button>
+                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Faça um resumo geral de alunas por oferta e gateway.">
+                    📊 Resumo de Alunas
+                </button>
+                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Quem são as últimas 5 alunas que compraram no Brasil?">
+                    🇧🇷 Últimas compras Brasil
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Box -->
+        <div class="flex-1 p-5 overflow-y-auto space-y-4" id="ai-chat-messages">
+            <!-- Initial Greeting -->
+            <div class="flex items-start space-x-3">
+                <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0 text-sm">
+                    🤖
+                </div>
+                <div class="bg-white/[0.04] border border-white/[0.08] rounded-2xl rounded-tl-none p-3.5 text-xs text-slate-200 space-y-2 max-w-[85%]">
+                    <p class="font-semibold text-white">Olá! Sou o Copiloto IA de Gestão de Membros.</p>
+                    <p class="text-slate-300">Posso analisar o status de Drip das alunas, encontrar compras por e-mail ou executar a liberação manual imediata dos bônus.</p>
+                    <p class="text-[11px] text-cyan-300 font-mono">Como posso te ajudar agora?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input Form -->
+        <div class="p-4 border-t border-white/[0.08] bg-[#0b111e]">
+            <form id="ai-chat-form" class="flex items-center space-x-2">
+                <input type="text" id="ai-chat-input" placeholder="Pergunte algo ou digite: 'Libera o bônus para aluna@email.com'..." class="flex-1 bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors">
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs shadow-lg shadow-cyan-500/20 transition-all">
+                    Enviar
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <script src="dashboard.js?v=8"></script>
 </body>
 </html>
