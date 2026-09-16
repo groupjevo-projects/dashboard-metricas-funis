@@ -578,9 +578,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 btn.innerHTML = '<span>⏳</span><span>Liberando...</span>';
 
                 const { error } = await supabase
-                    .from('members_access')
-                    .update({ manual_override_unlocked: true })
-                    .eq('id', memberId);
+                    .rpc('manual_toggle_member_bonus', {
+                        p_email: memberEmail,
+                        p_funnel_id: currentMembersArea,
+                        p_unlock: true
+                    });
 
                 if (error) {
                     alert('Erro ao liberar acesso: ' + error.message);
@@ -837,9 +839,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 replyHtml = `<p>❌ Não encontrei nenhum cadastro com o e-mail <strong>${targetEmail}</strong> no Supabase.</p>`;
             } else {
                 const { error: updErr } = await supabase
-                    .from('members_access')
-                    .update({ manual_override_unlocked: true })
-                    .eq('id', targetMember.id);
+                    .rpc('manual_toggle_member_bonus', {
+                        p_email: targetEmail,
+                        p_funnel_id: targetMember.funnel_id,
+                        p_unlock: true
+                    });
 
                 if (updErr) {
                     replyHtml = `<p class="text-rose-400">❌ Erro ao liberar acesso: ${updErr.message}</p>`;
