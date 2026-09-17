@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Jevo — Funnel & Members Ops Control</title>
+    <title>Group Jevo — Funnel Ops & Analytics Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -25,13 +25,13 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="dashboard.css?v=8">
+    <link rel="stylesheet" href="dashboard.css?v=10">
     <link rel="icon" type="image/png" href="favicon.png">
 </head>
 <body class="flex h-screen overflow-hidden text-slate-100 antialiased selection:bg-cyan-500/20 selection:text-cyan-300">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-[#080c14]/90 backdrop-blur-xl border-r border-white/[0.06] flex flex-col z-20 shrink-0">
+    <aside class="w-64 bg-[#080c14]/95 backdrop-blur-xl border-r border-white/[0.06] flex flex-col z-20 shrink-0">
         <!-- Logo Header -->
         <div class="h-16 flex items-center px-6 border-b border-white/[0.06] justify-between">
             <div class="flex items-center space-x-3">
@@ -40,94 +40,79 @@
                 </div>
                 <div>
                     <span class="font-extrabold text-[15px] tracking-tight text-white block leading-tight">JEVO <span class="font-normal text-slate-400">group</span></span>
-                    <span class="text-[9px] uppercase tracking-widest font-semibold text-cyan-400/80">Ops Control Plane</span>
+                    <span class="text-[9px] uppercase tracking-widest font-semibold text-cyan-400/80">Funnel Ops Control</span>
                 </div>
             </div>
         </div>
 
         <!-- Navigation Sections -->
-        <div class="p-4 flex-1 overflow-y-auto space-y-5">
-            <!-- Group 1: Funis & Analytics -->
+        <div class="p-4 flex-1 overflow-y-auto space-y-6">
+            <!-- Group 1: Funis de Vendas Ativos -->
             <div>
-                <div class="flex items-center justify-between px-3 mb-2">
+                <div class="flex items-center justify-between px-3 mb-2.5">
                     <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Funis de Vendas</h2>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.05] text-slate-400 font-mono">2 ativos</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 font-mono">3 Ativos</span>
                 </div>
                 
-                <nav class="space-y-1" id="funnel-nav">
+                <nav class="space-y-1.5" id="funnel-nav">
                     <!-- LATAM Funnel -->
-                    <button class="nav-item offer-item active w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="funnel" data-target="latam">
-                        <span class="text-lg shrink-0">🇪🇸</span>
+                    <button class="nav-item offer-item active w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-left transition-all" data-target="latam">
+                        <span class="text-xl shrink-0">🇪🇸</span>
                         <div class="flex-1 min-w-0">
-                            <div class="text-xs font-bold text-white truncate">Mapa Prazer Latam</div>
-                            <div class="flex items-center space-x-1 mt-0.5">
+                            <div class="text-xs font-bold text-white truncate">Mapa LATAM</div>
+                            <div class="flex items-center space-x-1.5 mt-0.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
-                                <span class="text-[10px] text-emerald-400 font-medium">Ativo em Produção</span>
+                                <span class="text-[10px] text-slate-400 font-mono truncate">mapadelplacer.site</span>
                             </div>
                         </div>
                     </button>
 
                     <!-- Brasil Funnel -->
-                    <button class="nav-item offer-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="funnel" data-target="chave-deusa-prazer-br">
-                        <span class="text-lg shrink-0">🇧🇷</span>
+                    <button class="nav-item offer-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-left transition-all" data-target="br">
+                        <span class="text-xl shrink-0">🇧🇷</span>
                         <div class="flex-1 min-w-0">
-                            <div class="text-xs font-bold text-slate-300 truncate">Chave Deusa Brasil</div>
-                            <div class="flex items-center space-x-1 mt-0.5">
+                            <div class="text-xs font-bold text-slate-300 truncate">Mapa Brasil</div>
+                            <div class="flex items-center space-x-1.5 mt-0.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
-                                <span class="text-[10px] text-slate-400 font-medium">chavesdeusa.online</span>
+                                <span class="text-[10px] text-slate-400 font-mono truncate">mapadoprazer.site</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- English Funnel -->
+                    <button class="nav-item offer-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-left transition-all" data-target="en">
+                        <span class="text-xl shrink-0">🇺🇸</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-bold text-slate-300 truncate">Mapa Inglês</div>
+                            <div class="flex items-center space-x-1.5 mt-0.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+                                <span class="text-[10px] text-slate-400 font-mono truncate">mapofpleasure.site</span>
                             </div>
                         </div>
                     </button>
                 </nav>
             </div>
 
-            <!-- Group 2: Áreas de Membros & Drip 7 Dias -->
+            <!-- Group 2: Escopo da Esteira (Front-end vs Back-end) -->
             <div>
-                <div class="flex items-center justify-between px-3 mb-2">
-                    <h2 class="text-[10px] font-bold text-cyan-400 uppercase tracking-widest flex items-center">
-                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 mr-1.5 animate-pulse"></span>
-                        Gestão de Membros
-                    </h2>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 font-mono">Drip 7d</span>
+                <div class="flex items-center justify-between px-3 mb-2.5">
+                    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Escopo da Esteira</h2>
                 </div>
-                
-                <nav class="space-y-1" id="members-nav">
-                    <!-- LATAM Members -->
-                    <button class="nav-item member-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="members" data-target="mapa-prazer-masculino-latam">
-                        <span class="text-lg shrink-0">🌎</span>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-xs font-bold text-slate-300 truncate">Mapa LATAM</div>
-                            <div class="flex items-center space-x-1.5 mt-0.5">
-                                <span class="text-[9px] px-1 rounded bg-orange-500/20 text-orange-300 font-mono">Hotmart</span>
-                                <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">Kiwify</span>
-                            </div>
-                        </div>
-                    </button>
 
-                    <!-- BR Members -->
-                    <button class="nav-item member-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="members" data-target="mapa-prazer-masculino-br">
-                        <span class="text-lg shrink-0">🇧🇷</span>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-xs font-bold text-slate-300 truncate">Mapa Brasil</div>
-                            <div class="flex items-center space-x-1.5 mt-0.5">
-                                <span class="text-[9px] px-1 rounded bg-blue-500/20 text-blue-300 font-mono">Payt</span>
-                                <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">Kiwify</span>
-                            </div>
-                        </div>
+                <div class="space-y-1 bg-black/30 p-1 rounded-xl border border-white/[0.06]">
+                    <button class="flow-tab-btn active w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-left text-xs font-bold transition-all text-white bg-white/[0.08]" data-mode="frontend">
+                        <span>🎯</span>
+                        <span>Front-end (Aquisição)</span>
                     </button>
-
-                    <!-- EN Members -->
-                    <button class="nav-item member-nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left transition-all" data-type="members" data-target="mapa-prazer-masculino-en">
-                        <span class="text-lg shrink-0">🇺🇸</span>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-xs font-bold text-slate-300 truncate">Mapa Inglês</div>
-                            <div class="flex items-center space-x-1.5 mt-0.5">
-                                <span class="text-[9px] px-1 rounded bg-orange-500/20 text-orange-300 font-mono">Hotmart</span>
-                                <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">Kiwify</span>
-                            </div>
-                        </div>
+                    <button class="flow-tab-btn w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-left text-xs font-semibold transition-all text-slate-400 hover:text-white" data-mode="backend">
+                        <span>⚡</span>
+                        <span>Back-end (Upsells)</span>
                     </button>
-                </nav>
+                    <button class="flow-tab-btn w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-left text-xs font-semibold transition-all text-slate-400 hover:text-white" data-mode="full">
+                        <span>📊</span>
+                        <span>Funil Completo</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -136,7 +121,7 @@
             <button id="open-ai-copilot-btn" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600/20 via-blue-600/20 to-purple-600/20 hover:from-cyan-600/30 hover:to-purple-600/30 border border-cyan-500/30 text-white text-xs font-bold transition-all shadow-lg shadow-cyan-500/10 group">
                 <span class="flex items-center space-x-2">
                     <span class="text-base group-hover:scale-110 transition-transform">🤖</span>
-                    <span>Copiloto IA Membros</span>
+                    <span>Copiloto IA de Métricas</span>
                 </span>
                 <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-400 text-black font-extrabold uppercase">IA</span>
             </button>
@@ -148,8 +133,8 @@
                         <span class="w-1 h-1 rounded-full bg-emerald-400 mr-1 animate-pulse"></span> Live Sync
                     </span>
                 </div>
-                <div class="text-xs font-semibold text-slate-200">Supabase Engine</div>
-                <div class="text-[10px] text-slate-500 font-mono truncate">Multi-Gateway Drip v2.0</div>
+                <div class="text-xs font-semibold text-slate-200">Supabase Telemetry</div>
+                <div class="text-[10px] text-slate-500 font-mono truncate">Group Jevo Analytics v3.0</div>
             </div>
         </div>
     </aside>
@@ -168,45 +153,52 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Sincronizando...
+                    Sincronizando dados reais...
                 </span>
             </div>
 
-            <!-- Top Header Controls (Filters for Funnel / Quick Actions for Members) -->
+            <!-- Top Header Controls -->
             <div class="flex items-center space-x-3">
-                <!-- Funnel Time Filter -->
+                <!-- Time Filters -->
                 <div class="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08]" id="funnel-time-filters">
-                    <button data-time="today" class="time-btn segmented-btn active px-3.5 py-1.5 text-xs rounded-lg text-white font-semibold transition-all">Hoje</button>
-                    <button data-time="24h" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">24 horas</button>
-                    <button data-time="7d" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">7 dias</button>
-                    <button data-time="30d" class="time-btn segmented-btn px-3.5 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">30 dias</button>
+                    <button data-time="today" class="time-btn segmented-btn px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">Hoje</button>
+                    <button data-time="24h" class="time-btn segmented-btn px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">24h</button>
+                    <button data-time="7d" class="time-btn segmented-btn px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">7 dias</button>
+                    <button data-time="30d" class="time-btn segmented-btn px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">30 dias</button>
+                    <button data-time="all" class="time-btn segmented-btn active px-3 py-1.5 text-xs rounded-lg text-white font-semibold transition-all">Todo Período</button>
                 </div>
 
-                <!-- Members Area Quick Toggle Buttons -->
-                <div class="hidden items-center bg-black/40 p-1 rounded-xl border border-white/[0.08]" id="members-area-tabs">
-                    <button data-funnel="mapa-prazer-masculino-latam" class="member-tab-btn segmented-btn active px-3 py-1.5 text-xs rounded-lg text-white font-semibold flex items-center space-x-1.5">
-                        <span>🌎</span> <span>LATAM</span>
-                    </button>
-                    <button data-funnel="mapa-prazer-masculino-br" class="member-tab-btn segmented-btn px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium flex items-center space-x-1.5">
-                        <span>🇧🇷</span> <span>Brasil</span>
-                    </button>
-                    <button data-funnel="mapa-prazer-masculino-en" class="member-tab-btn segmented-btn px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium flex items-center space-x-1.5">
-                        <span>🇺🇸</span> <span>Inglês</span>
-                    </button>
-                </div>
+                <!-- Refresh Button -->
+                <button id="refresh-data-btn" class="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-slate-300 hover:text-cyan-400 transition-all" title="Atualizar Métricas">
+                    <span class="text-sm">🔄</span>
+                </button>
 
                 <!-- Open Chat Button in Header -->
-                <button id="header-ai-btn" class="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-slate-300 hover:text-cyan-400 transition-all" title="Abrir Copiloto IA">
-                    <span class="text-base">💬</span>
+                <button id="header-ai-btn" class="p-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 transition-all flex items-center space-x-1.5" title="Abrir Copiloto IA">
+                    <span class="text-sm">🤖</span>
+                    <span class="text-xs font-bold">Copiloto IA</span>
                 </button>
             </div>
         </header>
 
         <!-- Main Dashboard View Container -->
-        <div class="flex-1 overflow-y-auto p-8">
+        <div class="flex-1 overflow-y-auto p-8 space-y-8 max-w-7xl mx-auto w-full">
             
-            <!-- VIEW 1: FUNNELS ANALYTICS -->
-            <div id="view-funnels" class="space-y-6 max-w-7xl mx-auto">
+            <!-- ============================================ -->
+            <!-- SECTION 1: FRONT-END ANALYTICS -->
+            <!-- ============================================ -->
+            <div id="section-frontend" class="space-y-6">
+                <div class="flex items-center justify-between pb-1">
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white tracking-tight flex items-center space-x-2">
+                            <span>🎯</span>
+                            <span>Funil Front-End — Desempenho de Aquisição & VSL</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Tráfego de entrada, desbloqueio de gate interativo e intenção de compra no checkout</p>
+                    </div>
+                    <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-white/[0.04] text-slate-300 border border-white/[0.06]" id="front-period-badge">Todo o Período</span>
+                </div>
+
                 <!-- KPI Metrics Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <!-- Card 1: Visitantes -->
@@ -227,7 +219,7 @@
                         <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 to-indigo-400 opacity-60"></div>
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Desbloqueios de Gate</span>
-                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Arrastaram</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Passaram</span>
                         </div>
                         <div class="text-3xl font-extrabold text-white font-mono-num tracking-tight" id="metric-responses">0</div>
                         <p class="text-[11px] text-slate-400 mt-2 flex items-center">
@@ -269,10 +261,10 @@
                         <div>
                             <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/[0.06]">
                                 <div>
-                                    <h3 class="text-sm font-bold text-white tracking-tight">Jornada de Conversão</h3>
+                                    <h3 class="text-sm font-bold text-white tracking-tight">Jornada de Conversão Front</h3>
                                     <p class="text-[11px] text-slate-400 mt-0.5">Retenção etapa por etapa</p>
                                 </div>
-                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-cyan-300 font-medium" id="funnel-period-label">Hoje</span>
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-cyan-300 font-medium" id="funnel-period-label">Todo o Período</span>
                             </div>
 
                             <div class="space-y-5">
@@ -370,164 +362,204 @@
                 </div>
             </div>
 
-            <!-- VIEW 2: MEMBERS ACCESS & 7-DAY DRIP MANAGEMENT -->
-            <div id="view-members" class="hidden space-y-6 max-w-7xl mx-auto">
-                
-                <!-- Quick Member Verifier Widget -->
-                <div class="glass-card rounded-2xl p-6 relative overflow-hidden border-cyan-500/20 shadow-lg shadow-cyan-500/5">
-                    <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500"></div>
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-base">🔍</span>
-                                <h3 class="text-sm font-extrabold text-white tracking-tight">Verificador de Acesso Rápido</h3>
-                                <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 font-mono border border-cyan-500/20">Instant Lookup</span>
-                            </div>
-                            <p class="text-xs text-slate-400 mt-0.5">Consulte o status do Drip de 7 dias, gateway e gere o link mágico de acesso de qualquer aluna.</p>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button id="btn-open-register-modal" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-cyan-500/20 flex items-center space-x-1.5">
-                                <span>➕</span>
-                                <span>Cadastrar Aluna</span>
-                            </button>
-                            <button id="btn-open-webhooks-modal" class="px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-semibold text-slate-200 transition-all flex items-center space-x-1.5">
-                                <span>🔗</span>
-                                <span>Endpoints Webhook</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Search Input & Funnel Selector -->
-                    <div class="mt-4 flex flex-col md:flex-row items-center gap-3">
-                        <div class="relative flex-1 w-full">
-                            <input type="text" id="verifier-email-input" placeholder="Digite o e-mail ou código de transação da aluna..." class="w-full bg-[#080c14]/90 border border-white/[0.1] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 font-mono transition-colors">
-                            <span class="absolute left-3 top-3 text-slate-500 text-xs">✉️</span>
-                        </div>
-                        <select id="verifier-funnel-select" class="w-full md:w-56 bg-[#080c14]/90 border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/60 font-semibold transition-colors">
-                            <option value="auto">🌐 Todas as Ofertas (Auto)</option>
-                            <option value="mapa-prazer-masculino-latam">🌎 Mapa LATAM (Espanhol)</option>
-                            <option value="mapa-prazer-masculino-br">🇧🇷 Mapa Brasil (pt-BR)</option>
-                            <option value="mapa-prazer-masculino-en">🇺🇸 Mapa Inglês (English)</option>
-                        </select>
-                        <button id="verifier-submit-btn" class="w-full md:w-auto px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs transition-all shadow-lg shadow-cyan-500/25 shrink-0 flex items-center justify-center space-x-1.5">
+            <!-- ============================================ -->
+            <!-- SECTION 2: BACK-END ANALYTICS (UPSELL & DOWNSELL) -->
+            <!-- ============================================ -->
+            <div id="section-backend" class="space-y-6">
+                <div class="flex items-center justify-between pb-1 border-t border-white/[0.06] pt-8">
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white tracking-tight flex items-center space-x-2">
                             <span>⚡</span>
-                            <span>Verificar Agora</span>
-                        </button>
+                            <span>Passagem do Back-End — Escada de Upsells, Downsells & Obrigado</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Desempenho da jornada pós-compra: conversão direta, resgate no downsell e ticket médio gerado</p>
                     </div>
-
-                    <!-- Verifier Result Box (Hidden by default, shows on search) -->
-                    <div id="verifier-result-box" class="hidden mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-3">
-                        <!-- Populated by JS -->
-                    </div>
+                    <span class="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/20" id="backend-offer-tag">LATAM</span>
                 </div>
 
-                <!-- Member Summary Cards -->
+                <!-- Backend KPI Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <!-- Total Members -->
-                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-400 opacity-60"></div>
+                    <!-- Entrada Backend -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 to-teal-400 opacity-70"></div>
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total de Alunas</span>
-                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20" id="member-kpi-area-badge">LATAM</span>
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Entrada no Back-End</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Front Pago</span>
                         </div>
-                        <div class="text-3xl font-extrabold text-white font-mono-num tracking-tight" id="member-kpi-total">0</div>
+                        <div class="text-3xl font-extrabold text-white font-mono-num tracking-tight" id="bk-metric-entry">0</div>
                         <p class="text-[11px] text-slate-400 mt-2 flex items-center">
-                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block mr-1.5"></span> Base cadastrada na oferta
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block mr-1.5"></span> Compradores qualificados na escada
                         </p>
                     </div>
 
-                    <!-- In 7-Day Drip Lock -->
-                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 to-orange-400 opacity-60"></div>
+                    <!-- Take Rate UP1 -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 to-blue-500 opacity-70"></div>
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Em Drip (Bloqueado)</span>
-                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">⏳ &lt; 7 Dias</span>
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Take Rate Upsell 1</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">/up1</span>
                         </div>
-                        <div class="text-3xl font-extrabold text-amber-400 font-mono-num tracking-tight" id="member-kpi-drip">0</div>
-                        <p class="text-[11px] text-slate-400 mt-2 flex items-center">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block mr-1.5"></span> Desbloqueio automático previsto
+                        <div class="text-3xl font-extrabold text-cyan-300 font-mono-num tracking-tight" id="bk-metric-up1-rate">0.0%</div>
+                        <p class="text-[11px] text-slate-400 mt-2 flex items-center" id="bk-metric-up1-sub">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block mr-1.5"></span> 0 compradores aceitaram
                         </p>
                     </div>
 
-                    <!-- Bonus Unlocked (7d+ / Override) -->
-                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 to-teal-400 opacity-60"></div>
+                    <!-- Take Rate DS1 -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 to-orange-500 opacity-70"></div>
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Bônus Liberados</span>
-                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">✅ 7d+ / Manual</span>
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Take Rate Downsell 1</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">/down1</span>
                         </div>
-                        <div class="text-3xl font-extrabold text-emerald-400 font-mono-num tracking-tight" id="member-kpi-unlocked">0</div>
-                        <p class="text-[11px] text-slate-400 mt-2 flex items-center">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block mr-1.5"></span> 100% dos bônus ativos
+                        <div class="text-3xl font-extrabold text-amber-400 font-mono-num tracking-tight" id="bk-metric-ds1-rate">0.0%</div>
+                        <p class="text-[11px] text-slate-400 mt-2 flex items-center" id="bk-metric-ds1-sub">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block mr-1.5"></span> 0 resgates de compradores
                         </p>
                     </div>
 
-                    <!-- Legacy Buyers (Full Access) -->
-                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 to-pink-400 opacity-60"></div>
+                    <!-- Conclusão em Tks -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 to-pink-500 opacity-70"></div>
                         <div class="flex items-center justify-between mb-3">
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Alunas Legadas</span>
-                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">👑 Kiwify / Full</span>
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Conclusão no Obrigado</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">/tks</span>
                         </div>
-                        <div class="text-3xl font-extrabold text-purple-300 font-mono-num tracking-tight" id="member-kpi-legacy">0</div>
-                        <p class="text-[11px] text-slate-400 mt-2 flex items-center">
-                            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 inline-block mr-1.5"></span> Acesso perpétuo imediato
+                        <div class="text-3xl font-extrabold text-purple-300 font-mono-num tracking-tight" id="bk-metric-tks">0</div>
+                        <p class="text-[11px] text-slate-400 mt-2 flex items-center" id="bk-metric-tks-sub">
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-400 inline-block mr-1.5"></span> 100% da esteira percorrida
                         </p>
                     </div>
                 </div>
 
-                <!-- Members Control & Filter Bar -->
-                <div class="glass-card rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="flex-1 flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-3">
-                        <!-- Search Box -->
-                        <div class="relative flex-1 max-w-md">
-                            <input type="text" id="member-search-input" placeholder="Buscar por nome, e-mail ou transação..." class="w-full bg-[#080c14]/90 border border-white/[0.1] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors">
-                            <span class="absolute left-3 top-3 text-slate-500 text-xs">🔍</span>
+                <!-- Visual Backend Pipeline Flow -->
+                <div class="glass-card rounded-2xl p-6 space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-white/[0.06]">
+                        <div>
+                            <h3 class="text-sm font-bold text-white tracking-tight">Fluxo Visual da Passagem do Backend</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Visualização de como cada lead navega entre as etapas pós-compra</p>
                         </div>
-
-                        <!-- Status Filter Pills -->
-                        <div class="flex items-center bg-black/40 p-1 rounded-xl border border-white/[0.08] overflow-x-auto space-x-1" id="member-status-filters">
-                            <button data-status="all" class="member-filter-pill active px-3 py-1.5 text-xs rounded-lg text-white font-semibold transition-all">Todas (<span id="count-filter-all">0</span>)</button>
-                            <button data-status="drip" class="member-filter-pill px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">Em Drip (<span id="count-filter-drip">0</span>)</button>
-                            <button data-status="unlocked" class="member-filter-pill px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">Liberadas (<span id="count-filter-unlocked">0</span>)</button>
-                            <button data-status="legacy" class="member-filter-pill px-3 py-1.5 text-xs rounded-lg text-slate-400 hover:text-white font-medium transition-all">Legadas (<span id="count-filter-legacy">0</span>)</button>
-                        </div>
+                        <span class="text-xs font-mono text-cyan-400 font-semibold" id="bk-flow-summary">1-Clique Ativo</span>
                     </div>
 
-                    <!-- Actions Buttons -->
-                    <div class="flex items-center space-x-2">
-                        <button id="refresh-members-btn" class="px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-semibold text-slate-200 transition-all flex items-center space-x-1.5">
-                            <span>🔄</span>
-                            <span>Atualizar</span>
-                        </button>
-                    </div>
-                </div>
+                    <!-- Flow Steps Columns -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+                        
+                        <!-- Step 1: Front-end Concluído -->
+                        <div class="backend-card p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ETAPA 1</span>
+                                <span class="text-xs text-slate-400">100% entrada</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Compra Front-End</h4>
+                                <div class="text-[11px] text-slate-400 mt-0.5" id="bk-step-front-name">Mapa do Prazer</div>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-black/40 border border-white/[0.04] text-xs font-mono flex items-center justify-between">
+                                <span class="text-slate-400">Volume:</span>
+                                <span class="font-bold text-emerald-400 font-mono-num" id="bk-step1-vol">0</span>
+                            </div>
+                            <div class="text-[10px] text-slate-500">
+                                ➔ Redireciona imediatamente para o <strong>Upsell 1 (/up1)</strong>
+                            </div>
+                        </div>
 
-                <!-- Members High Density Data Table -->
-                <div class="glass-card rounded-2xl overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse" id="members-table">
+                        <!-- Step 2: Upsell 1 -->
+                        <div class="backend-card p-4 rounded-xl bg-white/[0.02] border border-cyan-500/20 space-y-3 shadow-lg shadow-cyan-500/5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">ETAPA 2 (/up1)</span>
+                                <span class="text-xs font-bold text-cyan-400" id="bk-step2-take">0% Take</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Upsell 1 — Oferta Principal</h4>
+                                <div class="text-[11px] text-cyan-300/90 mt-0.5" id="bk-step-up1-name">A Cavalgada Proibida</div>
+                            </div>
+                            <div class="space-y-1.5 text-xs font-mono">
+                                <div class="p-2 rounded bg-black/40 border border-white/[0.04] flex items-center justify-between">
+                                    <span class="text-emerald-400 flex items-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span> Aceitou:
+                                    </span>
+                                    <span class="font-bold text-white" id="bk-step2-accepted">0</span>
+                                </div>
+                                <div class="p-2 rounded bg-black/40 border border-white/[0.04] flex items-center justify-between">
+                                    <span class="text-amber-400 flex items-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5"></span> Recusou:
+                                    </span>
+                                    <span class="font-bold text-slate-300" id="bk-step2-declined">0</span>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-slate-500">
+                                Quem recusa vai para <strong>Downsell 1 (/down1)</strong>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Downsell 1 -->
+                        <div class="backend-card p-4 rounded-xl bg-white/[0.02] border border-amber-500/20 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">ETAPA 3 (/down1)</span>
+                                <span class="text-xs font-bold text-amber-400" id="bk-step3-take">0% Resgate</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Downsell 1 — Resgate com Desconto</h4>
+                                <div class="text-[11px] text-amber-300/90 mt-0.5" id="bk-step-ds1-name">Condição Express</div>
+                            </div>
+                            <div class="space-y-1.5 text-xs font-mono">
+                                <div class="p-2 rounded bg-black/40 border border-white/[0.04] flex items-center justify-between">
+                                    <span class="text-emerald-400 flex items-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span> Aceitou:
+                                    </span>
+                                    <span class="font-bold text-white" id="bk-step3-accepted">0</span>
+                                </div>
+                                <div class="p-2 rounded bg-black/40 border border-white/[0.04] flex items-center justify-between">
+                                    <span class="text-rose-400 flex items-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span> Recusou:
+                                    </span>
+                                    <span class="font-bold text-slate-300" id="bk-step3-declined">0</span>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-slate-500">
+                                Ambos os caminhos direcionam para o <strong>Obrigado (/tks)</strong>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Página de Obrigado -->
+                        <div class="backend-card p-4 rounded-xl bg-white/[0.02] border border-purple-500/20 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">ETAPA FINAL</span>
+                                <span class="text-xs text-purple-400">Sucesso</span>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Página de Obrigado (/tks)</h4>
+                                <div class="text-[11px] text-slate-400 mt-0.5">Acesso Liberado & Instruções</div>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-black/40 border border-white/[0.04] text-xs font-mono flex items-center justify-between">
+                                <span class="text-slate-400">Total Finalizado:</span>
+                                <span class="font-bold text-purple-300 font-mono-num" id="bk-step4-total">0</span>
+                            </div>
+                            <div class="text-[10px] text-slate-500">
+                                Entrega automática das credenciais para a aluna
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Backend Comparison Table -->
+                    <div class="overflow-x-auto pt-2">
+                        <table class="w-full text-left border-collapse text-xs">
                             <thead>
-                                <tr class="border-b border-white/[0.08] bg-white/[0.02] text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                    <th class="py-3.5 px-6">Aluna</th>
-                                    <th class="py-3.5 px-4">Gateway</th>
-                                    <th class="py-3.5 px-4">Data da Compra</th>
-                                    <th class="py-3.5 px-4">Status Drip (7 Dias)</th>
-                                    <th class="py-3.5 px-4">Telemetria de Acesso</th>
-                                    <th class="py-3.5 px-6 text-right">Ação Operacional</th>
+                                <tr class="border-b border-white/[0.08] text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <th class="py-3 px-4">Oferta Pós-Compra</th>
+                                    <th class="py-3 px-4">Rota / Roteamento</th>
+                                    <th class="py-3 px-4">Preço Cadastrado</th>
+                                    <th class="py-3 px-4">Visualizações</th>
+                                    <th class="py-3 px-4">Aceite (Take Rate)</th>
+                                    <th class="py-3 px-4 text-right">Aumento Médio no Pedido</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-white/[0.04] text-xs" id="members-tbody">
-                                <!-- Dynamic Rows Injected by JS -->
+                            <tbody class="divide-y divide-white/[0.04] font-mono text-[11px]" id="backend-table-tbody">
+                                <!-- Populated dynamically by JS based on active offer -->
                             </tbody>
                         </table>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="members-empty" class="hidden py-12 text-center text-slate-400 space-y-2">
-                        <div class="text-3xl">📭</div>
-                        <div class="text-sm font-semibold text-white">Nenhum membro encontrado</div>
-                        <div class="text-xs text-slate-500">Tente ajustar a busca ou os filtros acima.</div>
                     </div>
                 </div>
             </div>
@@ -535,7 +567,9 @@
         </div>
     </main>
 
+    <!-- ============================================ -->
     <!-- AI COPILOT DRAWER (GEMINI INTELLIGENCE) -->
+    <!-- ============================================ -->
     <div id="ai-drawer-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden transition-opacity"></div>
     <aside id="ai-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[#080d17] border-l border-white/[0.1] z-50 flex flex-col shadow-2xl translate-x-full transition-transform duration-300 ease-out">
         <!-- Header -->
@@ -563,14 +597,14 @@
         <!-- Chat Suggestions / Chips -->
         <div class="px-5 py-3 border-b border-white/[0.06] bg-white/[0.01] overflow-x-auto">
             <div class="flex space-x-2 text-[11px] whitespace-nowrap">
-                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Quantas alunas em Drip completam 7 dias nos próximos 3 dias?">
-                    ⏳ Quem desbloqueia em breve?
+                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Compare a taxa de conversão do Gate e Checkout entre LATAM, Brasil e Inglês.">
+                    ⚖️ Comparar os 3 Funis
                 </button>
-                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Faça um resumo geral de alunas por oferta e gateway.">
-                    📊 Resumo de Alunas
+                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Como está a passagem de Upsell 1 e Downsell 1 neste funil?">
+                    ⚡ Análise do Backend
                 </button>
-                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Quem são as últimas 5 alunas que compraram no Brasil?">
-                    🇧🇷 Últimas compras Brasil
+                <button class="ai-chip px-3 py-1 rounded-full bg-white/[0.04] hover:bg-cyan-500/10 hover:border-cyan-500/30 border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-all" data-prompt="Onde está o maior gargalo de perda de visitantes no funil atual?">
+                    🔍 Detectar Gargalos
                 </button>
             </div>
         </div>
@@ -583,9 +617,9 @@
                     🤖
                 </div>
                 <div class="bg-white/[0.04] border border-white/[0.08] rounded-2xl rounded-tl-none p-3.5 text-xs text-slate-200 space-y-2 max-w-[85%]">
-                    <p class="font-semibold text-white">Olá! Sou o Copiloto IA de Gestão de Membros.</p>
-                    <p class="text-slate-300">Posso analisar o status de Drip das alunas, encontrar compras por e-mail ou executar a liberação manual imediata dos bônus.</p>
-                    <p class="text-[11px] text-cyan-300 font-mono">Como posso te ajudar agora?</p>
+                    <p class="font-semibold text-white">Olá! Sou o Copiloto IA de Funis & Conversão.</p>
+                    <p class="text-slate-300">Posso analisar métricas em tempo real de <strong>LATAM</strong>, <strong>Brasil</strong> e <strong>Inglês</strong>, diagnosticar taxas do Gate, retenção de VSL e a passagem de Upsell 1 e Downsell 1.</p>
+                    <p class="text-[11px] text-cyan-300 font-mono">Qual funil você gostaria de analisar agora?</p>
                 </div>
             </div>
         </div>
@@ -593,199 +627,14 @@
         <!-- Chat Input Form -->
         <div class="p-4 border-t border-white/[0.08] bg-[#0b111e]">
             <form id="ai-chat-form" class="flex items-center space-x-2">
-                <input type="text" id="ai-chat-input" placeholder="Pergunte algo ou digite: 'Libera o bônus para aluna@email.com'..." class="flex-1 bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors">
+                <input type="text" id="ai-chat-input" placeholder="Pergunte sobre taxas de conversão, upsell, gargalos..." class="flex-1 bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors">
                 <button type="submit" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs shadow-lg shadow-cyan-500/20 transition-all">
                     Enviar
                 </button>
             </form>
         </div>
     </aside>
-    
-    <!-- MODAL 1: CADASTRAR ALUNA MANUALMENTE -->
-    <div id="modal-register-overlay" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card rounded-2xl w-full max-w-lg border border-cyan-500/30 overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-            <div class="p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#0b111e]">
-                <div class="flex items-center space-x-2.5">
-                    <span class="text-xl">➕</span>
-                    <div>
-                        <h3 class="text-sm font-extrabold text-white tracking-tight">Cadastrar Nova Aluna</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Adicione uma compra manual com cálculo de Drip de 7 dias</p>
-                    </div>
-                </div>
-                <button id="close-register-modal-btn" class="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors">✕</button>
-            </div>
 
-            <form id="form-register-member" class="p-6 space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nome da Aluna</label>
-                    <input type="text" id="reg-name" required placeholder="Ex: Maria González" class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-colors">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">E-mail da Aluna (Identificador Único)</label>
-                    <input type="email" id="reg-email" required placeholder="Ex: maria.gonzalez@gmail.com" class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 font-mono transition-colors">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Oferta / Área</label>
-                        <select id="reg-funnel" required class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/60 transition-colors">
-                            <option value="mapa-prazer-masculino-latam">🌎 Mapa LATAM</option>
-                            <option value="mapa-prazer-masculino-br">🇧🇷 Mapa Brasil</option>
-                            <option value="mapa-prazer-masculino-en">🇺🇸 Mapa Inglês</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Gateway</label>
-                        <select id="reg-provider" required class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/60 transition-colors">
-                            <option value="hotmart">Hotmart</option>
-                            <option value="payt">Payt</option>
-                            <option value="kiwify">Kiwify</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">ID da Transação (Opcional)</label>
-                        <input type="text" id="reg-transaction" placeholder="Ex: HP12345678" class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 font-mono transition-colors">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Data da Compra</label>
-                        <input type="datetime-local" id="reg-purchase-date" class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/60 transition-colors">
-                    </div>
-                </div>
-
-                <!-- Flags -->
-                <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-2.5">
-                    <label class="flex items-center space-x-2.5 cursor-pointer">
-                        <input type="checkbox" id="reg-is-legacy" class="w-4 h-4 rounded bg-black/40 border-white/20 text-purple-500 focus:ring-0">
-                        <span class="text-xs text-slate-200">
-                            <strong>Aluna Legada / Kiwify</strong> (Acesso 100% imediato a tudo)
-                        </span>
-                    </label>
-
-                    <label class="flex items-center space-x-2.5 cursor-pointer">
-                        <input type="checkbox" id="reg-unlock-now" class="w-4 h-4 rounded bg-black/40 border-white/20 text-emerald-500 focus:ring-0">
-                        <span class="text-xs text-slate-200">
-                            <strong>Liberar Bônus Agora</strong> (Ignorar 7 dias de Drip)
-                        </span>
-                    </label>
-                </div>
-
-                <div class="pt-2 flex items-center justify-end space-x-2.5">
-                    <button type="button" id="btn-cancel-register" class="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-slate-300 transition-colors">Cancelar</button>
-                    <button type="submit" id="btn-submit-register" class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all">
-                        Salvar e Cadastrar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL 2: GUIA DE WEBHOOKS & ENDPOINTS -->
-    <div id="modal-webhooks-overlay" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card rounded-2xl w-full max-w-2xl border border-cyan-500/30 overflow-hidden shadow-2xl relative">
-            <div class="p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#0b111e]">
-                <div class="flex items-center space-x-2.5">
-                    <span class="text-xl">🔗</span>
-                    <div>
-                        <h3 class="text-sm font-extrabold text-white tracking-tight">Endpoints de Webhook Automatizados</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">URLs prontas para cadastrar no Hotmart, Payt e Kiwify</p>
-                    </div>
-                </div>
-                <button id="close-webhooks-modal-btn" class="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors">✕</button>
-            </div>
-
-            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-                <div class="p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-200">
-                    💡 O ingestor de webhook Group Jevo calcula automaticamente os <strong>7 dias exatos de Drip</strong> com base na data da compra enviada pelo gateway, registrando a aluna de forma instantânea.
-                </div>
-
-                <!-- Hotmart Section -->
-                <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono badge-hotmart">Hotmart</span>
-                            <span class="text-xs font-bold text-white">Webhook de Vendas Aprovadas</span>
-                        </div>
-                        <button class="copy-webhook-btn text-[11px] px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] text-cyan-300 font-mono transition-colors" data-copy="https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=hotmart">
-                            📋 Copiar URL
-                        </button>
-                    </div>
-                    <div class="p-2.5 rounded-lg bg-black/60 border border-white/[0.05] font-mono text-[11px] text-slate-300 select-all truncate">
-                        https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=hotmart
-                    </div>
-                    <div class="text-[10px] text-slate-400">Eventos ouvidos: <code>PURCHASE_APPROVED</code>, <code>PURCHASE_COMPLETE</code></div>
-                </div>
-
-                <!-- Payt Section -->
-                <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono badge-payt">Payt</span>
-                            <span class="text-xs font-bold text-white">Postback / Webhook Payt (Brasil)</span>
-                        </div>
-                        <button class="copy-webhook-btn text-[11px] px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] text-cyan-300 font-mono transition-colors" data-copy="https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=payt">
-                            📋 Copiar URL
-                        </button>
-                    </div>
-                    <div class="p-2.5 rounded-lg bg-black/60 border border-white/[0.05] font-mono text-[11px] text-slate-300 select-all truncate">
-                        https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=payt
-                    </div>
-                    <div class="text-[10px] text-slate-400">Eventos ouvidos: <code>paid</code>, <code>transaction.paid</code>, <code>approved</code></div>
-                </div>
-
-                <!-- Kiwify Section -->
-                <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono badge-kiwify">Kiwify</span>
-                            <span class="text-xs font-bold text-white">Webhook Kiwify (Legado / Backup)</span>
-                        </div>
-                        <button class="copy-webhook-btn text-[11px] px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] text-cyan-300 font-mono transition-colors" data-copy="https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=kiwify">
-                            📋 Copiar URL
-                        </button>
-                    </div>
-                    <div class="p-2.5 rounded-lg bg-black/60 border border-white/[0.05] font-mono text-[11px] text-slate-300 select-all truncate">
-                        https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=kiwify
-                    </div>
-                    <div class="text-[10px] text-slate-400">Eventos ouvidos: <code>order_approved</code>, <code>order_paid</code></div>
-                </div>
-            </div>
-
-            <div class="p-4 border-t border-white/[0.08] bg-[#0b111e] flex justify-end">
-                <button id="btn-close-webhooks-footer" class="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-slate-300 transition-colors">Fechar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 3: DETALHES & INSPEÇÃO DA ALUNA -->
-    <div id="modal-member-details-overlay" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card rounded-2xl w-full max-w-xl border border-cyan-500/30 overflow-hidden shadow-2xl relative">
-            <div class="p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#0b111e]">
-                <div class="flex items-center space-x-2.5">
-                    <span class="text-xl">👤</span>
-                    <div>
-                        <h3 class="text-sm font-extrabold text-white tracking-tight" id="modal-detail-name">Nome da Aluna</h3>
-                        <p class="text-[11px] text-cyan-300 font-mono mt-0.5" id="modal-detail-email">email@exemplo.com</p>
-                    </div>
-                </div>
-                <button id="close-details-modal-btn" class="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors">✕</button>
-            </div>
-
-            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto" id="modal-detail-body">
-                <!-- Dynamically populated by JS -->
-            </div>
-
-            <div class="p-4 border-t border-white/[0.08] bg-[#0b111e] flex items-center justify-between" id="modal-detail-footer">
-                <!-- Action buttons populated by JS -->
-            </div>
-        </div>
-    </div>
-
-    <script src="dashboard.js?v=9"></script>
+    <script src="dashboard.js?v=10"></script>
 </body>
 </html>
