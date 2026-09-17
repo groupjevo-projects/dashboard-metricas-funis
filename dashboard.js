@@ -467,6 +467,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             trafficChart.update();
         }
 
+        // Webhook Purchases Breakdown
+        let frontPurchasesCount = 0;
+        let up1PurchasesCount = 0;
+        let ds1PurchasesCount = 0;
+
+        purchases.forEach(p => {
+            if (p.amount >= (info.backend.up1Price * 0.75)) {
+                up1PurchasesCount++;
+            } else if (p.amount >= (info.backend.ds1Price * 0.75) && p.amount < (info.backend.up1Price * 0.75)) {
+                ds1PurchasesCount++;
+            } else {
+                frontPurchasesCount++;
+            }
+        });
+
         // ============================================
         // RENDER FINANCIAL HEALTH & REAL SALES
         // ============================================
@@ -475,7 +490,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         // ============================================
         // RENDER BACK-END (UPSELL & DOWNSELL FLOW)
         // ============================================
-        renderBackendFlow(totalCheckouts, purchases.length, uniqueUp1Views.size, uniqueDown1Views.size, uniqueTksViews.size);
+        renderBackendFlow(
+            totalCheckouts, 
+            purchases.length, 
+            uniqueUp1Views.size, 
+            up1PurchasesCount, 
+            uniqueDown1Views.size, 
+            ds1PurchasesCount, 
+            uniqueTksViews.size
+        );
     }
 
     // ============================================
@@ -539,40 +562,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ============================================
     // RENDER BACK-END (UPSELL & DOWNSELL FLOW)
     // ============================================
-    function renderBackendFlow(checkoutClicks, realApprovedPurchases = 0, realUp1 = 0, realDown1 = 0, realTks = 0) {
+    function renderBackendFlow(
+        checkoutClicks, 
+        realTotalPurchases = 0, 
+        up1Views = 0, 
+        up1Purchases = 0, 
+        down1Views = 0, 
+        ds1Purchases = 0, 
+        tksViews = 0
+    ) {
         const info = funnelInfo[currentOffer] || funnelInfo['latam'];
         const bk = info.backend;
         const sym = info.currencySymbol;
 
-        // Front-end buyers: use real approved sales if webhook active, otherwise benchmark projection (~14% checkout click to purchase)
-        const buyersFront = realApprovedPurchases > 0 
-            ? realApprovedPurchases 
+        // Front-end buyers who entered the post-purchase ladder
+        const buyersFront = realTotalPurchases > 0 
+            ? realTotalPurchases 
             : Math.max(1, Math.round(checkoutClicks * 0.14));
 
-        // Step 2: Upsell 1
-        const hasRealUp1 = realUp1 > 0;
-        const up1TakeRate = hasRealUp1 && buyersFront > 0 ? (realUp1 / buyersFront) * 100 : 20.5;
-        const up1Accepted = hasRealUp1 ? realUp1 : Math.round(buyersFront * (up1TakeRate / 100));
-        const up1Declined = Math.max(0, buyersFront - up1Accepted);
+        // Step 2: Upsell 1 (A Cavalgada Proibida / Pompoarismo)
+        // Accurate real conversion: accepted is real UP1 purchases (0 if none), views is actual up1Views
+        const effectiveUp1Views = up1Views > 0 ? up1Views : (buyersFront > 0 ? buyersFront : 0);
+        const up1Accepted = up1Purchases;
+        const up1Declined = Math.max(0, effectiveUp1Views - up1Accepted);
+        const up1TakeRate = effectiveUp1Views > 0 ? (up1Accepted / effectiveUp1Views) * 100 : 0.0;
 
-        // Step 3: Downsell 1
-        const hasRealDown1 = realDown1 > 0;
-        const ds1TakeRate = hasRealDown1 && up1Declined > 0 ? (realDown1 / up1Declined) * 100 : 16.2;
-        const ds1Accepted = hasRealDown1 ? realDown1 : Math.round(up1Declined * (ds1TakeRate / 100));
-        const ds1Declined = Math.max(0, up1Declined - ds1Accepted);
+        // Step 3: Downsell 1 (Condição Especial com Desconto)
+        const effectiveDown1Views = down1Views > 0 ? down1Views : (up1Declined > 0 ? up1Declined : 0);
+        const ds1Accepted = ds1Purchases;
+        const ds1Declined = Math.max(0, effectiveDown1Views - ds1Accepted);
+        const ds1TakeRate = effectiveDown1Views > 0 ? (ds1Accepted / effectiveDown1Views) * 100 : 0.0;
 
         // Step 4: Final Obrigado (/tks)
-        const tksReached = realTks > 0 ? realTks : buyersFront;
+        const tksReached = tksViews > 0 ? tksViews : (buyersFront > 0 ? buyersFront : 0);
 
         // Backend KPIs
         updateDOM('bk-metric-entry', buyersFront);
         updateDOM('bk-metric-up1-rate', up1TakeRate, 'percent');
         const up1Sub = document.getElementById('bk-metric-up1-sub');
-        if (up1Sub) up1Sub.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block mr-1.5"></span> ${up1Accepted} compradores aceitaram (${sym} ${bk.up1Price})`;
+        if (up1Sub) {
+            up1Sub.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block mr-1.5"></span> ${up1Accepted} compradores aceitaram (${sym} ${bk.up1Price})`;
+        }
 
         updateDOM('bk-metric-ds1-rate', ds1TakeRate, 'percent');
         const ds1Sub = document.getElementById('bk-metric-ds1-sub');
-        if (ds1Sub) ds1Sub.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block mr-1.5"></span> ${ds1Accepted} resgates no desconto (${sym} ${bk.ds1Price})`;
+        if (ds1Sub) {
+            ds1Sub.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block mr-1.5"></span> ${ds1Accepted} resgates no desconto (${sym} ${bk.ds1Price})`;
+        }
 
         updateDOM('bk-metric-tks', tksReached);
 
@@ -602,7 +638,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (bkOfferTag) bkOfferTag.innerText = info.badge;
         const bkFlowSummary = document.getElementById('bk-flow-summary');
         if (bkFlowSummary) {
-            bkFlowSummary.innerText = realApprovedPurchases > 0 
+            bkFlowSummary.innerText = realTotalPurchases > 0 
                 ? `Telemetria Real Ativa (${info.domain})` 
                 : `1-Clique Ativo (${info.domain})`;
         }
@@ -622,7 +658,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </td>
                     <td class="py-3 px-4 text-cyan-300 font-mono">${bk.up1Route}</td>
                     <td class="py-3 px-4 text-slate-200 font-bold">${sym} ${bk.up1Price}</td>
-                    <td class="py-3 px-4 text-slate-300">${buyersFront} visualizações</td>
+                    <td class="py-3 px-4 text-slate-300">${effectiveUp1Views} visualizações</td>
                     <td class="py-3 px-4 text-emerald-400 font-bold">${up1TakeRate.toFixed(1)}% (${up1Accepted} vendas)</td>
                     <td class="py-3 px-4 text-right text-emerald-300 font-bold">+ ${sym} ${(addedRevUp1 / Math.max(1, buyersFront)).toFixed(2)} / lead</td>
                 </tr>
@@ -633,7 +669,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </td>
                     <td class="py-3 px-4 text-amber-300 font-mono">${bk.ds1Route}</td>
                     <td class="py-3 px-4 text-slate-200 font-bold">${sym} ${bk.ds1Price}</td>
-                    <td class="py-3 px-4 text-slate-300">${up1Declined} recusaram UP1</td>
+                    <td class="py-3 px-4 text-slate-300">${effectiveDown1Views} visualizações</td>
                     <td class="py-3 px-4 text-emerald-400 font-bold">${ds1TakeRate.toFixed(1)}% (${ds1Accepted} vendas)</td>
                     <td class="py-3 px-4 text-right text-emerald-300 font-bold">+ ${sym} ${(addedRevDs1 / Math.max(1, buyersFront)).toFixed(2)} / lead</td>
                 </tr>
