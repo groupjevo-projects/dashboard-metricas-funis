@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // State Variables
     let currentOffer = 'latam';
-    let currentTimeFilter = 'all'; // Default to all time so metrics show full actual data
+    let currentTimeFilter = '24h'; // Default to last 24h / today
     let currentFlowMode = 'full'; // 'frontend', 'backend', or 'full'
     let fetchToken = 0;
 
@@ -502,12 +502,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         let frontPurchasesCount = 0;
         let up1PurchasesCount = 0;
         let ds1PurchasesCount = 0;
+        let orderBumpCount = 0;
 
         purchases.forEach(p => {
             if (p.productType === 'up1') {
                 up1PurchasesCount++;
             } else if (p.productType === 'down1') {
                 ds1PurchasesCount++;
+            } else if (p.productType === 'order_bump') {
+                orderBumpCount++;
             } else {
                 frontPurchasesCount++;
             }
@@ -516,14 +519,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         // ============================================
         // RENDER FINANCIAL HEALTH & REAL SALES
         // ============================================
-        renderFinancialMetrics(purchases, refunds, chargebacks, abandonments, totalCheckouts);
+        renderFinancialMetrics(purchases, refunds, chargebacks, abandonments, totalCheckouts, frontPurchasesCount, orderBumpCount);
 
         // ============================================
         // RENDER BACK-END (UPSELL & DOWNSELL FLOW)
         // ============================================
         renderBackendFlow(
             totalCheckouts, 
-            purchases.length, 
+            frontPurchasesCount, 
             uniqueUp1Views.size, 
             up1PurchasesCount, 
             uniqueDown1Views.size, 
@@ -535,7 +538,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ============================================
     // RENDER FINANCIAL HEALTH & REAL SALES
     // ============================================
-    function renderFinancialMetrics(purchases, refunds, chargebacks, abandonments, checkoutClicks) {
+    function renderFinancialMetrics(purchases, refunds, chargebacks, abandonments, checkoutClicks, frontCount = 0, bumpCount = 0) {
         const info = funnelInfo[currentOffer] || funnelInfo['latam'];
         const sym = info.currencySymbol;
 
@@ -583,7 +586,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const statusEl = document.getElementById('fin-webhook-status');
         if (statusEl) {
             if (approvedCount > 0 || refundCount > 0 || abandonments > 0) {
-                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Webhook Ativo (${approvedCount} compras capturadas)`;
+                const bumpText = bumpCount > 0 ? ` + ${bumpCount} Order Bump` : '';
+                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Webhook Ativo (${frontCount} Front${bumpText})`;
             } else {
                 statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span> Aguardando Eventos da Hotmart / Payt`;
             }
