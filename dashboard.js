@@ -334,17 +334,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         const bins_seen_unlocks = Array.from({ length: bins }, () => new Set());
         const bins_seen_checkouts = Array.from({ length: bins }, () => new Set());
 
+        const seenTx = new Set();
         function parseFinancialSession(sessId, defaultPrice, defaultCurrency) {
             if (sessId && sessId.startsWith('tx:')) {
                 const parts = sessId.split(':');
                 const txId = parts[1] || '';
                 const amountCents = parseInt(parts[2], 10);
-                const amount = !isNaN(amountCents) && amountCents > 0 ? amountCents / 100 : defaultPrice;
                 const currency = parts[3] || defaultCurrency;
                 const provider = parts[4] || 'hotmart';
-                return { txId, amount, currency, provider };
+                let productType = parts[5] || 'front';
+
+                // Filter out dummy test seeds
+                const isDummy = txId.includes('TEST') || txId === '12345' || txId.includes('PAYTS2') || txId.includes('1789654331733');
+                if (isDummy) return null;
+
+                let amount = defaultPrice;
+                if (!isNaN(amountCents) && amountCents > 0) {
+                    const rawVal = amountCents / 100;
+                    if (currency === 'USD' || currency === 'EUR') {
+                        amount = rawVal;
+                    } else if (currency === 'BRL') {
+                        amount = rawVal;
+                    } else if (currency === 'COP') {
+                        amount = rawVal / 4000;
+                    } else if (currency === 'ARS') {
+                        amount = rawVal / 1400;
+                    } else if (currency === 'MXN') {
+                        amount = rawVal / 19;
+                    } else if (currency === 'CLP') {
+                        amount = rawVal / 950;
+                    } else {
+                        amount = defaultPrice;
+                    }
+                }
+                return { txId, amount, currency, provider, productType };
             }
-            return { txId: sessId, amount: defaultPrice, currency: defaultCurrency, provider: 'hotmart' };
+            return null;
         }
 
         const info = funnelInfo[currentOffer] || funnelInfo['latam'];
@@ -363,11 +388,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (eventType === 'click_checkout') {
                 uniqueCheckouts.add(sessId);
             } else if (eventType === 'purchase_approved') {
-                purchases.push(parseFinancialSession(sessId, info.frontPrice, info.currency));
+                const fin = parseFinancialSession(sessId, info.frontPrice, info.currency);
+                if (fin && !seenTx.has(fin.txId)) {
+                    seenTx.add(fin.txId);
+                    purchases.push(fin);
+                }
             } else if (eventType === 'purchase_refunded') {
-                refunds.push(parseFinancialSession(sessId, info.frontPrice, info.currency));
+                const fin = parseFinancialSession(sessId, info.frontPrice, info.currency);
+                if (fin) refunds.push(fin);
             } else if (eventType === 'purchase_chargeback') {
-                chargebacks.push(parseFinancialSession(sessId, info.frontPrice, info.currency));
+                const fin = parseFinancialSession(sessId, info.frontPrice, info.currency);
+                if (fin) chargebacks.push(fin);
             } else if (eventType === 'cart_abandonment') {
                 abandonments++;
             } else if (eventType === 'up1_view') {
@@ -473,9 +504,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         let ds1PurchasesCount = 0;
 
         purchases.forEach(p => {
-            if (p.amount >= (info.backend.up1Price * 0.75)) {
+            if (p.productType === 'up1') {
                 up1PurchasesCount++;
-            } else if (p.amount >= (info.backend.ds1Price * 0.75) && p.amount < (info.backend.up1Price * 0.75)) {
+            } else if (p.productType === 'down1') {
                 ds1PurchasesCount++;
             } else {
                 frontPurchasesCount++;

@@ -129,6 +129,18 @@ module.exports = async (req, res) => {
         eventType = 'purchase_approved';
       }
 
+      // Product Type determination (Front vs UP1 vs DS1 vs UP2)
+      let productType = 'front';
+      if (prodName.includes('pompoarismo') || prodName.includes('cavalgada') || prodName.includes('protocolo') || prodName.includes('upsell 1') || prodName.includes('up1')) {
+        productType = 'up1';
+      } else if (prodName.includes('downsell') || prodName.includes('guia express') || prodName.includes('express') || prodName.includes('descuento') || prodName.includes('down1')) {
+        productType = 'down1';
+      } else if (prodName.includes('cofre') || prodName.includes('up2') || prodName.includes('upsell 2')) {
+        productType = 'up2';
+      } else {
+        productType = 'front';
+      }
+
       transactionId = purchase.transaction || body.id || `HOT-${Date.now()}`;
       const val = price.value || purchase.full_price?.value || 0;
       amountCents = Math.round(Number(val) * 100);
@@ -138,8 +150,8 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Encoded financial session ID: tx:TRANSACTION_ID:AMOUNT_CENTS:CURRENCY:PROVIDER
-    const financialSessionId = `tx:${transactionId}:${amountCents}:${currency}:${provider}`;
+    // Encoded financial session ID: tx:TRANSACTION_ID:AMOUNT_CENTS:CURRENCY:PROVIDER:PRODUCT_TYPE
+    const financialSessionId = `tx:${transactionId}:${amountCents}:${currency}:${provider}:${productType}`;
 
     // 3. Post directly to Supabase funnel_events
     await fetch(`${SUPABASE_URL}/rest/v1/funnel_events`, {
