@@ -316,12 +316,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         const uniqueVSLViews = new Set();
         const uniqueCheckouts = new Set();
 
+        // Webhook & Financial Data
+        const purchases = [];
+        const refunds = [];
+        const chargebacks = [];
+        let abandonments = 0;
+
+        // Real Telemetry Data for Backend (Upsell/Downsell/Tks)
+        const uniqueUp1Views = new Set();
+        const uniqueDown1Views = new Set();
+        const uniqueTksViews = new Set();
+
         const bins_visitors = Array(bins).fill(0);
         const bins_unlocks = Array(bins).fill(0);
         const bins_checkouts = Array(bins).fill(0);
         const bins_seen_visitors = Array.from({ length: bins }, () => new Set());
         const bins_seen_unlocks = Array.from({ length: bins }, () => new Set());
         const bins_seen_checkouts = Array.from({ length: bins }, () => new Set());
+
+        function parseFinancialSession(sessId, defaultPrice, defaultCurrency) {
+            if (sessId && sessId.startsWith('tx:')) {
+                const parts = sessId.split(':');
+                const txId = parts[1] || '';
+                const amountCents = parseInt(parts[2], 10);
+                const amount = !isNaN(amountCents) && amountCents > 0 ? amountCents / 100 : defaultPrice;
+                const currency = parts[3] || defaultCurrency;
+                const provider = parts[4] || 'hotmart';
+                return { txId, amount, currency, provider };
+            }
+            return { txId: sessId, amount: defaultPrice, currency: defaultCurrency, provider: 'hotmart' };
+        }
+
+        const info = funnelInfo[currentOffer] || funnelInfo['latam'];
 
         data.forEach(row => {
             const eventType = row.event_type;
@@ -336,6 +362,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 uniqueVSLViews.add(sessId);
             } else if (eventType === 'click_checkout') {
                 uniqueCheckouts.add(sessId);
+            } else if (eventType === 'purchase_approved') {
+                purchases.push(parseFinancialSession(sessId, info.frontPrice, info.currency));
+            } else if (eventType === 'purchase_refunded') {
+                refunds.push(parseFinancialSession(sessId, info.frontPrice, info.currency));
+            } else if (eventType === 'purchase_chargeback') {
+                chargebacks.push(parseFinancialSession(sessId, info.frontPrice, info.currency));
+            } else if (eventType === 'cart_abandonment') {
+                abandonments++;
+            } else if (eventType === 'up1_view') {
+                uniqueUp1Views.add(sessId);
+            } else if (eventType === 'down1_view') {
+                uniqueDown1Views.add(sessId);
+            } else if (eventType === 'tks_view') {
+                uniqueTksViews.add(sessId);
             }
 
             let binIndex = -1;
@@ -428,34 +468,101 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // ============================================
+        // RENDER FINANCIAL HEALTH & REAL SALES
+        // ============================================
+        renderFinancialMetrics(purchases, refunds, chargebacks, abandonments, totalCheckouts);
+
+        // ============================================
         // RENDER BACK-END (UPSELL & DOWNSELL FLOW)
         // ============================================
-        renderBackendFlow(totalCheckouts);
+        renderBackendFlow(totalCheckouts, purchases.length, uniqueUp1Views.size, uniqueDown1Views.size, uniqueTksViews.size);
     }
 
-    function renderBackendFlow(checkoutClicks) {
+    // ============================================
+    // RENDER FINANCIAL HEALTH & REAL SALES
+    // ============================================
+    function renderFinancialMetrics(purchases, refunds, chargebacks, abandonments, checkoutClicks) {
+        const info = funnelInfo[currentOffer] || funnelInfo['latam'];
+        const sym = info.currencySymbol;
+
+        const approvedCount = purchases.length;
+        const grossRev = purchases.reduce((acc, p) => acc + p.amount, 0);
+        const refundCount = refunds.length;
+        const refundAmount = refunds.reduce((acc, r) => acc + r.amount, 0);
+        const chargebackCount = chargebacks.length;
+        const chargebackAmount = chargebacks.reduce((acc, c) => acc + c.amount, 0);
+
+        const netRev = Math.max(0, grossRev - refundAmount - chargebackAmount);
+        const totalCompleted = approvedCount + refundCount;
+        const refundRate = totalCompleted > 0 ? (refundCount / totalCompleted) * 100 : 0;
+        const chargebackRate = totalCompleted > 0 ? (chargebackCount / totalCompleted) * 100 : 0;
+        const aov = approvedCount > 0 ? grossRev / approvedCount : info.frontPrice;
+
+        updateDOM('fin-approved-count', approvedCount);
+        updateDOM('fin-gross-revenue', `${sym} ${grossRev.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+        updateDOM('fin-net-revenue', `${sym} ${netRev.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+        updateDOM('fin-aov', `${sym} ${aov.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+
+        updateDOM('fin-refund-rate', refundRate, 'percent');
+        updateDOM('fin-refund-amount', `- ${sym} ${refundAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+        const refundCountLabel = document.getElementById('fin-refund-count-label');
+        if (refundCountLabel) refundCountLabel.innerText = `${refundCount} devoluções:`;
+
+        const refundBadge = document.getElementById('fin-refund-badge');
+        if (refundBadge) {
+            if (refundRate > 10) {
+                refundBadge.innerText = 'Crítico (>10%)';
+                refundBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30';
+            } else if (refundRate > 5) {
+                refundBadge.innerText = 'Atenção (>5%)';
+                refundBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+            } else {
+                refundBadge.innerText = 'Normal (<5%)';
+                refundBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+            }
+        }
+
+        updateDOM('fin-abandonment-count', abandonments);
+        const cbEl = document.getElementById('fin-chargeback-count');
+        if (cbEl) cbEl.innerText = `${chargebackCount} (${chargebackRate.toFixed(1)}%)`;
+
+        const statusEl = document.getElementById('fin-webhook-status');
+        if (statusEl) {
+            if (approvedCount > 0 || refundCount > 0 || abandonments > 0) {
+                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Webhook Ativo (${approvedCount} compras capturadas)`;
+            } else {
+                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span> Aguardando Eventos da Hotmart / Payt`;
+            }
+        }
+    }
+
+    // ============================================
+    // RENDER BACK-END (UPSELL & DOWNSELL FLOW)
+    // ============================================
+    function renderBackendFlow(checkoutClicks, realApprovedPurchases = 0, realUp1 = 0, realDown1 = 0, realTks = 0) {
         const info = funnelInfo[currentOffer] || funnelInfo['latam'];
         const bk = info.backend;
         const sym = info.currencySymbol;
 
-        // Front-end buyers who successfully complete checkout and enter the post-purchase ladder
-        // Benchmark: ~14% conversion rate from checkout click to confirmed payment
-        const buyersFront = Math.max(1, Math.round(checkoutClicks * 0.14));
+        // Front-end buyers: use real approved sales if webhook active, otherwise benchmark projection (~14% checkout click to purchase)
+        const buyersFront = realApprovedPurchases > 0 
+            ? realApprovedPurchases 
+            : Math.max(1, Math.round(checkoutClicks * 0.14));
 
-        // Step 2: Upsell 1 (A Cavalgada Proibida / Protocolo Reconexión)
-        // Benchmark take rate: ~20%
-        const up1TakeRate = 20.5;
-        const up1Accepted = Math.round(buyersFront * (up1TakeRate / 100));
+        // Step 2: Upsell 1
+        const hasRealUp1 = realUp1 > 0;
+        const up1TakeRate = hasRealUp1 && buyersFront > 0 ? (realUp1 / buyersFront) * 100 : 20.5;
+        const up1Accepted = hasRealUp1 ? realUp1 : Math.round(buyersFront * (up1TakeRate / 100));
         const up1Declined = Math.max(0, buyersFront - up1Accepted);
 
-        // Step 3: Downsell 1 (Condição Express / Desconto)
-        // Benchmark take rate from those who declined UP1: ~16%
-        const ds1TakeRate = 16.2;
-        const ds1Accepted = Math.round(up1Declined * (ds1TakeRate / 100));
+        // Step 3: Downsell 1
+        const hasRealDown1 = realDown1 > 0;
+        const ds1TakeRate = hasRealDown1 && up1Declined > 0 ? (realDown1 / up1Declined) * 100 : 16.2;
+        const ds1Accepted = hasRealDown1 ? realDown1 : Math.round(up1Declined * (ds1TakeRate / 100));
         const ds1Declined = Math.max(0, up1Declined - ds1Accepted);
 
         // Step 4: Final Obrigado (/tks)
-        const tksReached = buyersFront;
+        const tksReached = realTks > 0 ? realTks : buyersFront;
 
         // Backend KPIs
         updateDOM('bk-metric-entry', buyersFront);
@@ -494,7 +601,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const bkOfferTag = document.getElementById('backend-offer-tag');
         if (bkOfferTag) bkOfferTag.innerText = info.badge;
         const bkFlowSummary = document.getElementById('bk-flow-summary');
-        if (bkFlowSummary) bkFlowSummary.innerText = `1-Clique Ativo (${info.domain})`;
+        if (bkFlowSummary) {
+            bkFlowSummary.innerText = realApprovedPurchases > 0 
+                ? `Telemetria Real Ativa (${info.domain})` 
+                : `1-Clique Ativo (${info.domain})`;
+        }
 
         // Comparison Table Rows
         const tbody = document.getElementById('backend-table-tbody');
@@ -585,10 +696,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Flow Mode Switcher (Front-end vs Back-end vs Full)
+    // Flow Mode Switcher (Front-end vs Vendas vs Back-end vs Full)
     function setFlowMode(mode) {
         currentFlowMode = mode;
         const frontSec = document.getElementById('section-frontend');
+        const finSec = document.getElementById('section-financial');
         const backSec = document.getElementById('section-backend');
 
         document.querySelectorAll('.flow-tab-btn').forEach(b => {
@@ -603,13 +715,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (mode === 'frontend') {
             if (frontSec) frontSec.classList.remove('hidden');
+            if (finSec) finSec.classList.add('hidden');
+            if (backSec) backSec.classList.add('hidden');
+        } else if (mode === 'financial') {
+            if (frontSec) frontSec.classList.add('hidden');
+            if (finSec) finSec.classList.remove('hidden');
             if (backSec) backSec.classList.add('hidden');
         } else if (mode === 'backend') {
             if (frontSec) frontSec.classList.add('hidden');
+            if (finSec) finSec.classList.add('hidden');
             if (backSec) backSec.classList.remove('hidden');
         } else {
-            // 'full' shows both
+            // 'full' shows all
             if (frontSec) frontSec.classList.remove('hidden');
+            if (finSec) finSec.classList.remove('hidden');
             if (backSec) backSec.classList.remove('hidden');
         }
     }

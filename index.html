@@ -104,6 +104,10 @@
                         <span>🎯</span>
                         <span>Front-end (Aquisição)</span>
                     </button>
+                    <button class="flow-tab-btn w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-left text-xs font-semibold transition-all text-slate-400 hover:text-white" data-mode="financial">
+                        <span>💰</span>
+                        <span>Vendas & Reembolsos</span>
+                    </button>
                     <button class="flow-tab-btn w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-left text-xs font-semibold transition-all text-slate-400 hover:text-white" data-mode="backend">
                         <span>⚡</span>
                         <span>Back-end (Upsells)</span>
@@ -363,7 +367,86 @@
             </div>
 
             <!-- ============================================ -->
-            <!-- SECTION 2: BACK-END ANALYTICS (UPSELL & DOWNSELL) -->
+            <!-- SECTION 2: SAÚDE COMERCIAL & VENDAS (WEBHOOKS REAIS) -->
+            <!-- ============================================ -->
+            <div id="section-financial" class="space-y-6">
+                <div class="flex items-center justify-between pb-1 border-t border-white/[0.06] pt-8">
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white tracking-tight flex items-center space-x-2">
+                            <span>💰</span>
+                            <span>Auditoria Comercial & Vendas — Hotmart & Payt</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Telemetria de faturamento bruto vs líquido, taxas de reembolso, disputas e abandono de carrinho</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="fin-webhook-status">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Webhooks Conectados
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Financial KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Card 1: Vendas Aprovadas & Faturamento Bruto -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 to-green-400 opacity-70"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Vendas Aprovadas</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Pago</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-white font-mono-num tracking-tight" id="fin-approved-count">0</div>
+                        <div class="mt-2 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400" id="fin-gross-revenue-label">Faturamento Bruto:</span>
+                            <span class="font-bold text-emerald-400 font-mono" id="fin-gross-revenue">US$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Faturamento Líquido -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 to-blue-500 opacity-70"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Faturamento Líquido</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">Real</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-cyan-300 font-mono-num tracking-tight" id="fin-net-revenue">US$ 0,00</div>
+                        <div class="mt-2 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Ticket Médio:</span>
+                            <span class="font-bold text-slate-200 font-mono" id="fin-aov">US$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Taxa de Reembolso -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-rose-500 to-amber-500 opacity-70"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Taxa de Reembolso</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20" id="fin-refund-badge">Normal</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-rose-400 font-mono-num tracking-tight" id="fin-refund-rate">0.0%</div>
+                        <div class="mt-2 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400" id="fin-refund-count-label">0 devoluções:</span>
+                            <span class="font-bold text-rose-400/90 font-mono" id="fin-refund-amount">- US$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Disputas & Abandono de Carrinho -->
+                    <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 to-purple-500 opacity-70"></div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Abandono de Carrinho</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">Checkout</span>
+                        </div>
+                        <div class="text-3xl font-extrabold text-amber-400 font-mono-num tracking-tight" id="fin-abandonment-count">0</div>
+                        <div class="mt-2 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Chargebacks:</span>
+                            <span class="font-bold text-purple-400 font-mono" id="fin-chargeback-count">0 (0.0%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- SECTION 3: BACK-END ANALYTICS (UPSELL & DOWNSELL) -->
             <!-- ============================================ -->
             <div id="section-backend" class="space-y-6">
                 <div class="flex items-center justify-between pb-1 border-t border-white/[0.06] pt-8">
@@ -635,6 +718,6 @@
         </div>
     </aside>
 
-    <script src="dashboard.js?v=10"></script>
+    <script src="dashboard.js?v=11"></script>
 </body>
 </html>
