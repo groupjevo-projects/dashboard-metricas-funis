@@ -372,6 +372,55 @@
 
             <!-- VIEW 2: MEMBERS ACCESS & 7-DAY DRIP MANAGEMENT -->
             <div id="view-members" class="hidden space-y-6 max-w-7xl mx-auto">
+                
+                <!-- Quick Member Verifier Widget -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden border-cyan-500/20 shadow-lg shadow-cyan-500/5">
+                    <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500"></div>
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-base">🔍</span>
+                                <h3 class="text-sm font-extrabold text-white tracking-tight">Verificador de Acesso Rápido</h3>
+                                <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 font-mono border border-cyan-500/20">Instant Lookup</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-0.5">Consulte o status do Drip de 7 dias, gateway e gere o link mágico de acesso de qualquer aluna.</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="btn-open-register-modal" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-cyan-500/20 flex items-center space-x-1.5">
+                                <span>➕</span>
+                                <span>Cadastrar Aluna</span>
+                            </button>
+                            <button id="btn-open-webhooks-modal" class="px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-semibold text-slate-200 transition-all flex items-center space-x-1.5">
+                                <span>🔗</span>
+                                <span>Endpoints Webhook</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search Input & Funnel Selector -->
+                    <div class="mt-4 flex flex-col md:flex-row items-center gap-3">
+                        <div class="relative flex-1 w-full">
+                            <input type="text" id="verifier-email-input" placeholder="Digite o e-mail ou código de transação da aluna..." class="w-full bg-[#080c14]/90 border border-white/[0.1] rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 font-mono transition-colors">
+                            <span class="absolute left-3 top-3 text-slate-500 text-xs">✉️</span>
+                        </div>
+                        <select id="verifier-funnel-select" class="w-full md:w-56 bg-[#080c14]/90 border border-white/[0.1] rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/60 font-semibold transition-colors">
+                            <option value="auto">🌐 Todas as Ofertas (Auto)</option>
+                            <option value="mapa-prazer-masculino-latam">🌎 Mapa LATAM (Espanhol)</option>
+                            <option value="mapa-prazer-masculino-br">🇧🇷 Mapa Brasil (pt-BR)</option>
+                            <option value="mapa-prazer-masculino-en">🇺🇸 Mapa Inglês (English)</option>
+                        </select>
+                        <button id="verifier-submit-btn" class="w-full md:w-auto px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs transition-all shadow-lg shadow-cyan-500/25 shrink-0 flex items-center justify-center space-x-1.5">
+                            <span>⚡</span>
+                            <span>Verificar Agora</span>
+                        </button>
+                    </div>
+
+                    <!-- Verifier Result Box (Hidden by default, shows on search) -->
+                    <div id="verifier-result-box" class="hidden mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
                 <!-- Member Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <!-- Total Members -->
@@ -551,7 +600,192 @@
             </form>
         </div>
     </aside>
+    
+    <!-- MODAL 1: CADASTRAR ALUNA MANUALMENTE -->
+    <div id="modal-register-overlay" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-2xl w-full max-w-lg border border-cyan-500/30 overflow-hidden shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <div class="p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#0b111e]">
+                <div class="flex items-center space-x-2.5">
+                    <span class="text-xl">➕</span>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-white tracking-tight">Cadastrar Nova Aluna</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Adicione uma compra manual com cálculo de Drip de 7 dias</p>
+                    </div>
+                </div>
+                <button id="close-register-modal-btn" class="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors">✕</button>
+            </div>
 
-    <script src="dashboard.js?v=8"></script>
+            <form id="form-register-member" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nome da Aluna</label>
+                    <input type="text" id="reg-name" required placeholder="Ex: Maria González" class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">E-mail da Aluna (Identificador Único)</label>
+                    <input type="email" id="reg-email" required placeholder="Ex: maria.gonzalez@gmail.com" class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 font-mono transition-colors">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Oferta / Área</label>
+                        <select id="reg-funnel" required class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/60 transition-colors">
+                            <option value="mapa-prazer-masculino-latam">🌎 Mapa LATAM</option>
+                            <option value="mapa-prazer-masculino-br">🇧🇷 Mapa Brasil</option>
+                            <option value="mapa-prazer-masculino-en">🇺🇸 Mapa Inglês</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Gateway</label>
+                        <select id="reg-provider" required class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/60 transition-colors">
+                            <option value="hotmart">Hotmart</option>
+                            <option value="payt">Payt</option>
+                            <option value="kiwify">Kiwify</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">ID da Transação (Opcional)</label>
+                        <input type="text" id="reg-transaction" placeholder="Ex: HP12345678" class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 font-mono transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Data da Compra</label>
+                        <input type="datetime-local" id="reg-purchase-date" class="w-full bg-[#080c14] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/60 transition-colors">
+                    </div>
+                </div>
+
+                <!-- Flags -->
+                <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-2.5">
+                    <label class="flex items-center space-x-2.5 cursor-pointer">
+                        <input type="checkbox" id="reg-is-legacy" class="w-4 h-4 rounded bg-black/40 border-white/20 text-purple-500 focus:ring-0">
+                        <span class="text-xs text-slate-200">
+                            <strong>Aluna Legada / Kiwify</strong> (Acesso 100% imediato a tudo)
+                        </span>
+                    </label>
+
+                    <label class="flex items-center space-x-2.5 cursor-pointer">
+                        <input type="checkbox" id="reg-unlock-now" class="w-4 h-4 rounded bg-black/40 border-white/20 text-emerald-500 focus:ring-0">
+                        <span class="text-xs text-slate-200">
+                            <strong>Liberar Bônus Agora</strong> (Ignorar 7 dias de Drip)
+                        </span>
+                    </label>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end space-x-2.5">
+                    <button type="button" id="btn-cancel-register" class="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-slate-300 transition-colors">Cancelar</button>
+                    <button type="submit" id="btn-submit-register" class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all">
+                        Salvar e Cadastrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: GUIA DE WEBHOOKS & ENDPOINTS -->
+    <div id="modal-webhooks-overlay" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-2xl w-full max-w-2xl border border-cyan-500/30 overflow-hidden shadow-2xl relative">
+            <div class="p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#0b111e]">
+                <div class="flex items-center space-x-2.5">
+                    <span class="text-xl">🔗</span>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-white tracking-tight">Endpoints de Webhook Automatizados</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">URLs prontas para cadastrar no Hotmart, Payt e Kiwify</p>
+                    </div>
+                </div>
+                <button id="close-webhooks-modal-btn" class="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors">✕</button>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <div class="p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-xs text-cyan-200">
+                    💡 O ingestor de webhook Group Jevo calcula automaticamente os <strong>7 dias exatos de Drip</strong> com base na data da compra enviada pelo gateway, registrando a aluna de forma instantânea.
+                </div>
+
+                <!-- Hotmart Section -->
+                <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono badge-hotmart">Hotmart</span>
+                            <span class="text-xs font-bold text-white">Webhook de Vendas Aprovadas</span>
+                        </div>
+                        <button class="copy-webhook-btn text-[11px] px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] text-cyan-300 font-mono transition-colors" data-copy="https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=hotmart">
+                            📋 Copiar URL
+                        </button>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-black/60 border border-white/[0.05] font-mono text-[11px] text-slate-300 select-all truncate">
+                        https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=hotmart
+                    </div>
+                    <div class="text-[10px] text-slate-400">Eventos ouvidos: <code>PURCHASE_APPROVED</code>, <code>PURCHASE_COMPLETE</code></div>
+                </div>
+
+                <!-- Payt Section -->
+                <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono badge-payt">Payt</span>
+                            <span class="text-xs font-bold text-white">Postback / Webhook Payt (Brasil)</span>
+                        </div>
+                        <button class="copy-webhook-btn text-[11px] px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] text-cyan-300 font-mono transition-colors" data-copy="https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=payt">
+                            📋 Copiar URL
+                        </button>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-black/60 border border-white/[0.05] font-mono text-[11px] text-slate-300 select-all truncate">
+                        https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=payt
+                    </div>
+                    <div class="text-[10px] text-slate-400">Eventos ouvidos: <code>paid</code>, <code>transaction.paid</code>, <code>approved</code></div>
+                </div>
+
+                <!-- Kiwify Section -->
+                <div class="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono badge-kiwify">Kiwify</span>
+                            <span class="text-xs font-bold text-white">Webhook Kiwify (Legado / Backup)</span>
+                        </div>
+                        <button class="copy-webhook-btn text-[11px] px-2.5 py-1 rounded bg-white/[0.05] hover:bg-white/[0.1] text-cyan-300 font-mono transition-colors" data-copy="https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=kiwify">
+                            📋 Copiar URL
+                        </button>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-black/60 border border-white/[0.05] font-mono text-[11px] text-slate-300 select-all truncate">
+                        https://ahtvpfunglhhtfpefsyi.supabase.co/functions/v1/member-webhook-ingest?provider=kiwify
+                    </div>
+                    <div class="text-[10px] text-slate-400">Eventos ouvidos: <code>order_approved</code>, <code>order_paid</code></div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-white/[0.08] bg-[#0b111e] flex justify-end">
+                <button id="btn-close-webhooks-footer" class="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-slate-300 transition-colors">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: DETALHES & INSPEÇÃO DA ALUNA -->
+    <div id="modal-member-details-overlay" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card rounded-2xl w-full max-w-xl border border-cyan-500/30 overflow-hidden shadow-2xl relative">
+            <div class="p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#0b111e]">
+                <div class="flex items-center space-x-2.5">
+                    <span class="text-xl">👤</span>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-white tracking-tight" id="modal-detail-name">Nome da Aluna</h3>
+                        <p class="text-[11px] text-cyan-300 font-mono mt-0.5" id="modal-detail-email">email@exemplo.com</p>
+                    </div>
+                </div>
+                <button id="close-details-modal-btn" class="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white transition-colors">✕</button>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto" id="modal-detail-body">
+                <!-- Dynamically populated by JS -->
+            </div>
+
+            <div class="p-4 border-t border-white/[0.08] bg-[#0b111e] flex items-center justify-between" id="modal-detail-footer">
+                <!-- Action buttons populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js?v=9"></script>
 </body>
 </html>
