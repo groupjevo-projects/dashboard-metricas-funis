@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
   // 1. CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT,HEAD');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  // 2. Health-check & "Testar URL" ping support (Payt sends GET or HEAD to test connectivity)
+  // 2. Health-check & "Testar URL" ping support (Payt sends GET, HEAD or empty POST to test connectivity)
   if (req.method === 'GET' || req.method === 'HEAD') {
     return res.status(200).json({
       status: 'ok',
@@ -28,17 +28,31 @@ module.exports = async (req, res) => {
     });
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
   try {
     const queryProvider = (req.query.provider || '').toLowerCase();
     const queryOffer = (req.query.offer || '').toLowerCase();
-    const body = req.body || {};
+    
+    // Parse body if received as string (urlencoded or raw json)
+    let body = req.body || {};
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        try {
+          const params = new URLSearchParams(body);
+          const parsed = {};
+          for (const [key, val] of params.entries()) {
+            parsed[key] = val;
+          }
+          body = parsed;
+        } catch (e2) {
+          body = {};
+        }
+      }
+    }
 
     // Check if this is a test payload from Payt or Hotmart
-    const isTest = body.teste === true || body.is_test === true || body.event === 'TEST' || Object.keys(body).length === 0;
+    const isTest = body.teste === true || body.teste === 'true' || body.teste === '1' || body.is_test === true || body.event === 'TEST' || Object.keys(body).length === 0;
     if (isTest) {
       return res.status(200).json({
         status: 'ok',
@@ -59,7 +73,7 @@ module.exports = async (req, res) => {
     // ----------------------------------------------------
     // PAYT POSTBACK PROCESSING (Brasil)
     // ----------------------------------------------------
-    if (queryProvider === 'payt' || body.cliente || body.customer || body.code || body.status) {
+    if (queryProvider === 'payt' || body.cliente || body.customer || body.code || body.status || body.current_status) {
       provider = 'payt';
       offerId = 'br';
       const rawStatus = (body.status || body.event || body.current_status || '').toLowerCase();
@@ -128,7 +142,7 @@ module.exports = async (req, res) => {
     const financialSessionId = `tx:${transactionId}:${amountCents}:${currency}:${provider}`;
 
     // 3. Post directly to Supabase funnel_events
-    const supabaseResp = await fetch(`${SUPABASE_URL}/rest/v1/funnel_events`, {
+    await fetch(`${SUPABASE_URL}/rest/v1/funnel_events`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
@@ -142,12 +156,7 @@ module.exports = async (req, res) => {
         session_id: financialSessionId,
         created_at: occurredAt
       }])
-    });
-
-    if (!supabaseResp.ok) {
-      const errText = await supabaseResp.text();
-      console.error('Supabase ingest error:', errText);
-    }
+    }).catch(e => console.error('Supabase ingest fetch err:', e));
 
     return res.status(200).json({
       success: true,
